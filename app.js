@@ -111,7 +111,12 @@ function renderCrystals(filter = 'all') {
         <div class="cc-row max"><span class="k">9 星</span><span class="v">${attrs(c.s9)}</span></div>
       </div>
       <p class="cc-note">${c.comment}</p>
+      <button class="cc-share" data-share-crystal="${c.name}" aria-label="生成分享卡片">分享卡片</button>
     </article>`).join('');
+  $$('#crystalGrid .cc-share').forEach(b => b.addEventListener('click', e => {
+    e.stopPropagation();
+    shareCrystal(b.dataset.shareCrystal);
+  }));
 }
 function attrs(arr) {
   // 合并同名属性：攻击 +4800 · +22%
@@ -312,11 +317,14 @@ function openPet(name) {
       </div>
     </div>
     <p class="mh-desc">“${p.desc}”</p>
+    <button class="share-btn" data-share-pet="${p.name}">生成分享卡片</button>
     ${skills}`;
 
   $('#modal').classList.add('is-open');
   $('#modal').setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
+  const sb = $('[data-share-pet]');
+  if (sb) sb.addEventListener('click', () => sharePet(sb.dataset.sharePet));
 }
 
 /* ---------- 通用交互 ---------- */
@@ -430,8 +438,453 @@ function renderSaints() {
     </article>`).join('');
 }
 
+/* ============================================================
+   深色模式
+   ============================================================ */
+const THEME_KEY = 'xyzw-theme';
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = $('#themeBtn');
+  if (btn) btn.setAttribute('aria-pressed', String(t === 'dark'));
+}
+function initTheme() {
+  let saved = null;
+  try { saved = localStorage.getItem(THEME_KEY); } catch (e) {}
+  const sysDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved || (sysDark ? 'dark' : 'light'));
+  const btn = $('#themeBtn');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+  });
+}
+
+/* ============================================================
+   滚动定位
+   ============================================================ */
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ============================================================
+   全站搜索
+   ============================================================ */
+let SEARCH_INDEX = [];
+let SEARCH_HITS = [];
+
+function buildSearchIndex() {
+  const idx = [];
+  const push = (type, name, sub, text, action) => idx.push({ type, name, sub, text: text.toLowerCase(), action });
+  CRYSTALS.forEach(c => push('水晶', c.name, `${c.tag} · ${c.attr}`,
+    `${c.name} ${c.tag} ${c.attr} ${c.comment} ${(c.s9 || []).map(x => x[0]).join(' ')}`,
+    () => { scrollToSection('crystal'); flashCrystal(c.name); }));
+  BEADS.forEach(b => push('灵珠', b.name, `${b.cost} 灵珠 · ${b.tier}`,
+    `${b.name} ${b.tier} ${b.effect} ${b.fit}`, () => scrollToSection('bead')));
+  PETS.forEach(p => push('宠物', p.name, `${p.quality}色 · ${p.series}系`,
+    `${p.name} ${p.quality} ${p.series} ${p.desc} ${p.skills.map(s => s.name + ' ' + s.kind).join(' ')}`,
+    () => { closeSearch(); openPet(p.name); }));
+  SAINTS.forEach(s => s.members.forEach(m => push('四圣', m.name, `${s.key} · ${m.tags.join(' / ')}`,
+    `${s.key} ${s.en} ${m.name} ${m.tags.join(' ')} ${s.desc}`, () => scrollToSection('saint'))));
+  TERMS.forEach(g => g.items.forEach(([k, v]) => push('词条', k, g.title, `${k} ${v} ${g.title}`,
+    () => scrollToSection('bead'))));
+  SEARCH_INDEX = idx;
+}
+
+function flashCrystal(name) {
+  const card = $$('#crystalGrid .crystal-card').find(el => {
+    const n = el.querySelector('.cc-name');
+    return n && n.textContent === name;
+  });
+  if (!card) return;
+  card.classList.add('is-flash');
+  setTimeout(() => card.classList.remove('is-flash'), 1600);
+}
+
+function openSearch() {
+  const s = $('#search');
+  s.classList.add('is-open');
+  s.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  renderSearch('');
+  setTimeout(() => { const i = $('#searchInput'); if (i) i.focus(); }, 40);
+}
+function closeSearch() {
+  const s = $('#search');
+  if (!s || !s.classList.contains('is-open')) return;
+  s.classList.remove('is-open');
+  s.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+  const i = $('#searchInput'); if (i) i.value = '';
+}
+
+function renderSearch(q) {
+  q = (q || '').trim().toLowerCase();
+  const hint = $('#searchHint');
+  const res = $('#searchResults');
+  if (!q) { hint.style.display = ''; res.innerHTML = ''; SEARCH_HITS = []; return; }
+  hint.style.display = 'none';
+
+  const hits = SEARCH_INDEX.map(it => {
+    const name = it.name.toLowerCase();
+    let score = 0;
+    if (name === q) score = 100;
+    else if (name.includes(q)) score = 80;
+    else if (it.sub.toLowerCase().includes(q)) score = 45;
+    else if (it.text.includes(q)) score = 25;
+    return { it, score };
+  }).filter(x => x.score > 0).sort((a, b) => b.score - a.score).slice(0, 40);
+
+  SEARCH_HITS = hits.map(h => h.it);
+  if (!hits.length) {
+    res.innerHTML = `<p class="sr-empty">没有找到「${q}」相关条目</p>`;
+    return;
+  }
+  const order = ['水晶', '灵珠', '宠物', '四圣', '词条'];
+  const groups = {};
+  hits.forEach(h => { (groups[h.it.type] = groups[h.it.type] || []).push(h.it); });
+  let i = 0;
+  res.innerHTML = order.filter(t => groups[t]).map(t => `
+    <div class="sr-group">
+      <div class="sr-type">${t}<span>${groups[t].length}</span></div>
+      ${groups[t].map(it => {
+        const n = i++;
+        return `<button class="sr-item" data-i="${n}"><b>${it.name}</b><span>${it.sub}</span></button>`;
+      }).join('')}
+    </div>`).join('');
+  $$('#searchResults .sr-item').forEach(btn => btn.addEventListener('click', () => {
+    const it = SEARCH_HITS[+btn.dataset.i];
+    closeSearch();
+    if (it) setTimeout(it.action, 60);
+  }));
+}
+
+function initSearch() {
+  buildSearchIndex();
+  const btn = $('#searchBtn');
+  if (btn) btn.addEventListener('click', openSearch);
+  $$('[data-sclose]').forEach(el => el.addEventListener('click', closeSearch));
+  const input = $('#searchInput');
+  if (input) input.addEventListener('input', e => renderSearch(e.target.value));
+  document.addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openSearch(); }
+    else if (e.key === 'Escape') closeSearch();
+  });
+}
+
+/* ============================================================
+   移动端底部导航
+   ============================================================ */
+function initTabbar() {
+  const bar = $('#tabbar');
+  if (!bar) return;
+  const links = $$('#tabbar a');
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.toggle('is-active', l.dataset.target === e.target.id));
+      }
+    });
+  }, { rootMargin: '-45% 0px -50% 0px' });
+  ['crystal', 'bead', 'pet', 'saint', 'calendar'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) io.observe(el);
+  });
+}
+
+/* ============================================================
+   活动日历
+   ============================================================ */
+const WD = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+let calCursor = new Date();
+
+function eventsOn(date) {
+  const d = date.getDate();
+  return CAL_EVENTS.filter(e => {
+    if (e.rule === 'daily') return true;
+    if (e.rule === 'weekly') return e.weekday === date.getDay();
+    if (e.rule === 'monthly') return d === 1;
+    return false;
+  });
+}
+
+function renderCalendar() {
+  const y = calCursor.getFullYear();
+  const m = calCursor.getMonth();
+  $('#calMonth').textContent = `${y} 年 ${m + 1} 月`;
+  const now = new Date();
+  const isThisMonth = now.getFullYear() === y && now.getMonth() === m;
+  $('#calSub').textContent = isThisMonth ? '本月 · 周期活动参考' : '周期活动参考';
+
+  const first = new Date(y, m, 1);
+  const startDow = (first.getDay() + 6) % 7;
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+
+  let html = '';
+  for (let i = 0; i < startDow; i++) html += '<span class="cal-cell is-blank"></span>';
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(y, m, d);
+    const evs = eventsOn(date);
+    const isToday = isThisMonth && now.getDate() === d;
+    const dots = evs.slice(0, 5).map(e => `<i style="background:${e.color}"></i>`).join('');
+    html += `<button class="cal-cell${isToday ? ' is-today' : ''}" data-day="${d}">
+      <b>${d}</b><span class="cal-dots">${dots}</span></button>`;
+  }
+  $('#calGrid').innerHTML = html;
+
+  $('#calLegend').innerHTML = CAL_EVENTS.map(e =>
+    `<span><i style="background:${e.color}"></i>${e.name}</span>`).join('');
+
+  $$('#calGrid .cal-cell[data-day]').forEach(btn => btn.addEventListener('click', () => {
+    $$('#calGrid .cal-cell').forEach(c => c.classList.remove('is-sel'));
+    btn.classList.add('is-sel');
+    renderCalDay(+btn.dataset.day);
+  }));
+
+  const sel = isThisMonth ? now.getDate() : 1;
+  const selBtn = $(`#calGrid .cal-cell[data-day="${sel}"]`);
+  if (selBtn) { selBtn.classList.add('is-sel'); }
+  renderCalDay(sel);
+}
+
+function renderCalDay(d) {
+  const y = calCursor.getFullYear();
+  const m = calCursor.getMonth();
+  const date = new Date(y, m, d);
+  const evs = eventsOn(date);
+  const label = { daily: '每日', weekly: '每周', monthly: '每月' };
+  $('#calDay').innerHTML = `
+    <div class="cal-day-head">
+      <b>${m + 1} 月 ${d} 日</b>
+      <span>${WD[date.getDay()]} · ${evs.length} 项</span>
+    </div>
+    <ul class="cal-day-list">
+      ${evs.map(e => `<li><i style="background:${e.color}"></i>
+        <div><b>${e.name}</b><span>${e.desc}</span></div>
+        <em>${label[e.rule]}</em></li>`).join('')}
+    </ul>`;
+}
+
+function renderCalRhythm() {
+  const groups = [['daily', '每日'], ['weekly', '每周'], ['monthly', '每月']];
+  $('#calRhythm').innerHTML = `
+    <h3 class="sub-title">周期节奏</h3>
+    <div class="rhythm-grid">
+      ${groups.map(([rule, lb]) => `
+        <div class="rhythm-card">
+          <h4>${lb}</h4>
+          <ul>${CAL_EVENTS.filter(e => e.rule === rule).map(e => `
+            <li><i style="background:${e.color}"></i><b>${e.name}</b><span>${e.desc}</span></li>`).join('')}
+          </ul>
+        </div>`).join('')}
+    </div>
+    <p class="compare-note">以上为常规节奏参考，具体开放时间与次数以游戏内公告为准。</p>`;
+}
+
+function initCalendar() {
+  if (!$('#calGrid')) return;
+  renderCalendar();
+  renderCalRhythm();
+  $('#calPrev').addEventListener('click', () => {
+    calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth() - 1, 1);
+    renderCalendar();
+  });
+  $('#calNext').addEventListener('click', () => {
+    calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 1);
+    renderCalendar();
+  });
+}
+
+/* ============================================================
+   分享卡片
+   ============================================================ */
+let shareDataUrl = null;
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function attrsPlain(arr) {
+  return arr.map(([k, v]) => `${k.replace(/%$/, '')}+${v}${k.endsWith('%') ? '%' : ''}`).join(' ');
+}
+
+function drawShare(opt) {
+  return new Promise(resolve => {
+    const W = 720, H = 980;
+    const cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    const ctx = cv.getContext('2d');
+
+    const paint = img => {
+      ctx.clearRect(0, 0, W, H);
+      const bg = ctx.createLinearGradient(0, 0, W, H);
+      bg.addColorStop(0, '#fdfaf1'); bg.addColorStop(1, '#edf3fd');
+      ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = opt.color; ctx.fillRect(0, 0, W, 12);
+
+      ctx.globalAlpha = .07; ctx.fillStyle = opt.color;
+      ctx.beginPath(); ctx.arc(W - 30, 80, 190, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#16233c';
+      ctx.font = '700 46px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.fillText(opt.title, 56, 104);
+      ctx.fillStyle = opt.color;
+      ctx.font = '600 22px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.fillText(opt.subtitle, 58, 142);
+
+      if (img) {
+        const bx = 56, by = 178, bw = 300, bh = 300;
+        ctx.save();
+        roundRect(ctx, bx, by, bw, bh, 26); ctx.clip();
+        ctx.fillStyle = '#fff'; ctx.fillRect(bx, by, bw, bh);
+        const r = Math.min(bw / img.width, bh / img.height);
+        const dw = img.width * r, dh = img.height * r;
+        ctx.drawImage(img, bx + (bw - dw) / 2, by + (bh - dh) / 2, dw, dh);
+        ctx.restore();
+        roundRect(ctx, bx, by, bw, bh, 26);
+        ctx.strokeStyle = opt.color; ctx.lineWidth = 4; ctx.stroke();
+      }
+
+      let ry = 206;
+      const rows = opt.rows.slice(0, 4);
+      rows.forEach(([k, v]) => {
+        ctx.fillStyle = '#7d8ba6';
+        ctx.font = '500 18px "PingFang SC","Microsoft YaHei",sans-serif';
+        ctx.fillText(k, 392, ry);
+        ctx.fillStyle = '#16233c';
+        ctx.font = '700 24px "PingFang SC","Microsoft YaHei",sans-serif';
+        let vv = String(v);
+        if (ctx.measureText(vv).width > 264) vv = vv.slice(0, 13) + '…';
+        ctx.fillText(vv, 392, ry + 30);
+        ry += 64;
+      });
+
+      ctx.strokeStyle = 'rgba(18,38,70,.12)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(56, 540); ctx.lineTo(664, 540); ctx.stroke();
+
+      ctx.fillStyle = '#48597a';
+      ctx.font = '400 21px "PingFang SC","Microsoft YaHei",sans-serif';
+      const chars = [...(opt.desc || '')];
+      let line = '', yy = 580;
+      for (const ch of chars) {
+        if (ctx.measureText(line + ch).width > 600) { ctx.fillText(line, 56, yy); line = ch; yy += 34; }
+        else line += ch;
+        if (yy > 850) break;
+      }
+      if (line) ctx.fillText(line, 56, yy);
+
+      ctx.strokeStyle = 'rgba(18,38,70,.1)';
+      ctx.beginPath(); ctx.moveTo(56, 898); ctx.lineTo(664, 898); ctx.stroke();
+      ctx.fillStyle = '#a9741a';
+      ctx.font = '700 20px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.fillText('咸鱼之王 · 图鉴站', 56, 936);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#7d8ba6';
+      ctx.font = '400 16px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.fillText('brightld.github.io/xyzw-guide', 664, 936);
+      ctx.textAlign = 'left';
+    };
+
+    const finish = img => {
+      paint(img);
+      let url = null;
+      try { url = cv.toDataURL('image/png'); }
+      catch (e) { paint(null); try { url = cv.toDataURL('image/png'); } catch (e2) { url = null; } }
+      resolve({ url });
+    };
+
+    if (opt.image) {
+      const im = new Image();
+      im.onload = () => finish(im);
+      im.onerror = () => finish(null);
+      im.src = opt.image;
+    } else finish(null);
+  });
+}
+
+function openShare(opt) {
+  const s = $('#share');
+  s.classList.add('is-open');
+  s.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  $('#sharePreview').innerHTML = '<div class="share-loading">生成中…</div>';
+  $('#shareDownload').disabled = true;
+  drawShare(opt).then(({ url }) => {
+    shareDataUrl = url;
+    if (url) {
+      $('#sharePreview').innerHTML = `<img src="${url}" alt="${opt.title} 分享卡片" />`;
+      $('#shareDownload').disabled = false;
+      $('#shareTip').textContent = '长按图片或右键也可保存';
+    } else {
+      $('#sharePreview').innerHTML = '<div class="share-fail">当前环境无法直接导出图片<br>请使用在线版或直接截图保存</div>';
+      $('#shareTip').textContent = '在线版（GitHub Pages）可直接下载';
+    }
+  });
+}
+
+function closeShare() {
+  const s = $('#share');
+  if (!s || !s.classList.contains('is-open')) return;
+  s.classList.remove('is-open');
+  s.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+function sharePet(name) {
+  const p = PETS.find(x => x.name === name);
+  if (!p) return;
+  const q = QUALITY[p.quality] || { color: '#cfd8e3' };
+  const rows = [['图鉴加成', `${p.atlasType} +${fmt(p.atlasValue)}`]]
+    .concat(p.skills.slice(0, 3).map(k => [k.kind, k.name]));
+  openShare({
+    title: p.name,
+    subtitle: `${p.quality}色 · ${p.series}系`,
+    color: q.color,
+    image: `assets/pets/${p.name}.png`,
+    rows,
+    desc: p.desc
+  });
+}
+
+function shareCrystal(name) {
+  const c = CRYSTALS.find(x => x.name === name);
+  if (!c) return;
+  openShare({
+    title: c.name,
+    subtitle: `${c.tag} · 金色品质`,
+    color: c.c2,
+    image: 'assets/icons/梦魇晶石-金.png',
+    rows: [['0 星', attrsPlain(c.s0)], ['9 星', attrsPlain(c.s9)], ['定位', c.tag]],
+    desc: c.comment
+  });
+}
+
+function initShare() {
+  $$('[data-shclose]').forEach(el => el.addEventListener('click', closeShare));
+  const dl = $('#shareDownload');
+  if (dl) dl.addEventListener('click', () => {
+    if (!shareDataUrl) return;
+    const a = document.createElement('a');
+    a.href = shareDataUrl;
+    a.download = '咸鱼之王-图鉴.png';
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeShare(); });
+}
+
 /* ---------- 启动 ---------- */
 document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
   renderLadder();
   renderCrystals();
   renderMatrix();
@@ -439,12 +892,16 @@ document.addEventListener('DOMContentLoaded', () => {
   renderTerms();
   renderPets();
   renderSaints();
+  initCalendar();
   initBubbles();
   initReveal();
   initNav();
+  initTabbar();
   initCounters();
   initOverlays();
   initCrystalFilter();
+  initSearch();
+  initShare();
 
   // 深链：#pet-炎鬃狮 直接打开详情
   const hash = decodeURIComponent(location.hash || '');

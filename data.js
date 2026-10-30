@@ -2376,3 +2376,18 @@ const SAINTS = [
     ]
   }
 ];
+
+/* ============ 活动日历（周期节奏参考） ============ */
+/* 说明：daily 每天出现；weekly 按 weekday(0=周日) 标注；monthly 每月 1 日标注。
+   具体开放时间以游戏内公告为准，此处为常规节奏参考。 */
+const CAL_EVENTS = [
+  { id: 'task',   name: '每日任务',   color: '#378ADD', rule: 'daily',   desc: '清日常、领活跃奖励，是资源的基本盘。' },
+  { id: 'dream',  name: '咸王梦境',   color: '#7F77DD', rule: 'daily',   desc: '每日挑战，产出梦魇晶石与资源，记得打满。' },
+  { id: 'arena',  name: '咸神竞技场', color: '#D4537E', rule: 'daily',   desc: '每日免费挑战次数，尽量打满排名奖励。' },
+  { id: 'salt',   name: '盐场',       color: '#1D9E75', rule: 'daily',   desc: '占矿与产出，按时收取避免被抢。' },
+  { id: 'lamp',   name: '灯神挑战',   color: '#BA7517', rule: 'weekly',  weekday: 0, desc: '一周 10 次；周日先打到当周最高层再扫荡。' },
+  { id: 'recruit',name: '招募达标',   color: '#D4537E', rule: 'weekly',  weekday: 1, desc: '周常招募达标，按周结算，别在周初就用光。' },
+  { id: 'chest',  name: '宝箱达标',   color: '#0F6E56', rule: 'weekly',  weekday: 1, desc: '周常宝箱达标，攒够再开更划算。' },
+  { id: 'club',   name: '俱乐部',     color: '#854F0B', rule: 'weekly',  weekday: 3, desc: '俱乐部捐献与活动，稳定产出资源。' },
+  { id: 'bead',   name: '灵贝达标',   color: '#534AB7', rule: 'monthly', desc: '每月累计 200 次灵贝消耗达标，换取灵珠。' }
+];

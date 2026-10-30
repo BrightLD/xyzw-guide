@@ -319,6 +319,58 @@
 
 
 
+<!-- 全站搜索 -->
+<div class="search" id="search" aria-hidden="true">
+  <div class="search-mask" data-sclose="1"></div>
+  <div class="search-panel" role="dialog" aria-modal="true" aria-label="全站搜索">
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16.2 16.2L20.5 20.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <input id="searchInput" type="search" placeholder="搜索水晶 / 灵珠 / 宠物 / 四圣 / 词条…" autocomplete="off" spellcheck="false" />
+      <kbd>ESC</kbd>
+    </div>
+    <div class="search-hint" id="searchHint">输入关键词，或试试「破甲」「关羽」「青龙」</div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<!-- 分享卡片 -->
+<div class="share" id="share" aria-hidden="true">
+  <div class="share-mask" data-shclose="1"></div>
+  <div class="share-card" role="dialog" aria-modal="true" aria-label="分享卡片">
+    <button class="modal-close" data-shclose="1" aria-label="关闭">✕</button>
+    <div class="share-preview" id="sharePreview"></div>
+    <div class="share-actions">
+      <button class="btn btn-primary" id="shareDownload">下载图片</button>
+      <button class="btn btn-ghost" data-shclose="1">关闭</button>
+    </div>
+    <p class="share-tip" id="shareTip">长按图片或右键也可保存</p>
+  </div>
+</div>
+
+<!-- 移动端底部导航 -->
+<nav class="tabbar" id="tabbar" aria-label="移动端导航">
+  <a href="#crystal" data-target="crystal">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 4.5v9L12 21l-7-4.5v-9z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 3v18M5 7.5l14 9M19 7.5l-14 9" fill="none" stroke="currentColor" stroke-width="1.1" opacity=".55"/></svg>
+    <span>水晶</span>
+  </a>
+  <a href="#bead" data-target="bead">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.2" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="2.6" fill="currentColor" opacity=".55"/></svg>
+    <span>灵珠</span>
+  </a>
+  <a href="#pet" data-target="pet">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="15.5" rx="5" ry="4.2" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="6.6" cy="9.6" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="7.6" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17.4" cy="9.6" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+    <span>宠物</span>
+  </a>
+  <a href="#saint" data-target="saint">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.5 5.6 6.1.6-4.6 4.1 1.3 6-5.3-3.1L6.7 19.3l1.3-6L3.4 9.2l6.1-.6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    <span>四圣</span>
+  </a>
+  <a href="#calendar" data-target="calendar">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 9.5h17M8 3.2v3.4M16 3.2v3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+    <span>日历</span>
+  </a>
+</nav>
+
 <script src="data.js"></script>
 <script src="app.js"></script>
 </body>
