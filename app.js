@@ -769,6 +769,50 @@ function initCalendar() {
   });
 }
 
+/* ---------- 点赞 ---------- */
+const LIKE_KEY = 'xyzw-like';
+
+function likeSparks(btn) {
+  const box = btn.querySelector('.like-spark');
+  if (!box) return;
+  box.innerHTML = '';
+  for (let i = 0; i < 8; i++) {
+    const p = document.createElement('i');
+    const a = -Math.PI / 2 + (Math.random() - 0.5) * 2.3;
+    const d = 28 + Math.random() * 24;
+    p.style.setProperty('--dx', (Math.cos(a) * d).toFixed(1) + 'px');
+    p.style.setProperty('--dy', (Math.sin(a) * d).toFixed(1) + 'px');
+    p.style.background = i % 2 ? '#e2453f' : '#f0a33c';
+    p.style.animationDelay = (i * 18) + 'ms';
+    box.appendChild(p);
+  }
+  setTimeout(() => { box.innerHTML = ''; }, 900);
+}
+
+function initLike() {
+  const btn = $('#likeBtn');
+  if (!btn) return;
+  const txt = $('#likeTxt');
+
+  const paint = liked => {
+    btn.classList.toggle('is-liked', liked);
+    btn.setAttribute('aria-pressed', liked ? 'true' : 'false');
+    btn.setAttribute('aria-label', liked ? '已点赞，点击取消' : '点赞支持');
+    if (txt) txt.textContent = liked ? '已点赞' : '点赞';
+  };
+
+  let liked = false;
+  try { liked = localStorage.getItem(LIKE_KEY) === '1'; } catch (e) { /* 隐私模式忽略 */ }
+  paint(liked);
+
+  btn.addEventListener('click', () => {
+    liked = !liked;
+    paint(liked);
+    try { localStorage.setItem(LIKE_KEY, liked ? '1' : '0'); } catch (e) {}
+    if (liked) likeSparks(btn);
+  });
+}
+
 /* ---------- 启动 ---------- */
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
@@ -788,6 +832,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initOverlays();
   initCrystalFilter();
   initSearch();
+  initLike();
 
   // 深链：#pet-炎鬃狮 直接打开详情
   const hash = decodeURIComponent(location.hash || '');
