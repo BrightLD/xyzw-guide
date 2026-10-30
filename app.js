@@ -769,6 +769,36 @@ function initCalendar() {
   });
 }
 
+
+/* ---------- 全站访问计数（Cloudflare Worker + KV） ---------- */
+// 部署 workers/visit-counter 后，把地址填到这里，例如：
+// const VISIT_API = 'https://xyzw-visit.xxx.workers.dev';
+const VISIT_API = 'https://xyzw-visit.brightld.workers.dev';
+
+async function initVisitCount() {
+  const el = document.getElementById('visitCount');
+  if (!el) return;
+  if (!VISIT_API) {
+    el.textContent = '待接入';
+    el.title = '请先部署 workers/visit-counter，并把地址填到 VISIT_API';
+    return;
+  }
+  try {
+    const res = await fetch(VISIT_API, {
+      method: 'POST',
+      mode: 'cors',
+      cache: 'no-store',
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const n = Number(data && data.count) || 0;
+    el.textContent = n.toLocaleString('zh-CN');
+  } catch (e) {
+    el.textContent = '—';
+    el.title = '访问计数暂时不可用';
+  }
+}
+
 /* ---------- 点赞 ---------- */
 const LIKE_KEY = 'xyzw-like';
 
@@ -833,6 +863,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initCrystalFilter();
   initSearch();
   initLike();
+  initVisitCount();
 
   // 深链：#pet-炎鬃狮 直接打开详情
   const hash = decodeURIComponent(location.hash || '');

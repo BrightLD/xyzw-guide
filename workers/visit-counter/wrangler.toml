@@ -1,0 +1,13 @@
+name = "xyzw-visit"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+# 部署前执行一次：
+#   npx wrangler kv namespace create VISITS
+# 把返回的 id 填到下面，再：
+#   npx wrangler deploy
+
+[[kv_namespaces]]
+binding = "VISITS"
+id = "aa262b37e293453f9d0b5560ebcd2b9f"
+preview_id = "aa262b37e293453f9d0b5560ebcd2b9f"
