@@ -1011,7 +1011,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 [data-theme="dark"] .cal-day-list em{background:#1b2739;color:var(--ink-2)}
 [data-theme="dark"] .badge.cost{background:rgba(13,127,156,.18);border-color:rgba(111,211,234,.28);color:#6fd3ea}
 [data-theme="dark"] .badge.t2{background:#1b2739;border-color:var(--line);color:var(--ink-3)}
-[data-theme="dark"] .hero h1 .grad{background:linear-gradient(100deg,#f5d089 0%,#e0ad3e 48%,#c9921f 100%)}
+[data-theme="dark"] .hero h1 .grad{background-image:linear-gradient(100deg,#f5d089 0%,#e0ad3e 48%,#c9921f 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
 [data-theme="dark"] .cw-bar{filter:brightness(1.18) saturate(1.06)}
 [data-theme="dark"] .cw-bar.is-task{
   background:color-mix(in srgb,var(--c) 30%,#0d1421);
