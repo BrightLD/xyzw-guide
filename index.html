@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>咸鱼之王 · 数据图鉴 | 梦魇水晶 · 灵珠 · 宠物</title>
+<meta name="description" content="咸鱼之王图鉴站：11 颗金色梦魇水晶属性、11 种灵珠（技能鱼珠）效果、28 只宠物立绘与技能数据。" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="bg-fx" aria-hidden="true">
+  <div class="bg-grid"></div>
+  <div class="glow g1"></div>
+  <div class="glow g2"></div>
+  <div class="bubbles" id="bubbles"></div>
+</div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#top">
+      <span class="brand-mark">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <defs><linearGradient id="fishg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#f3c25c"/><stop offset="1" stop-color="#b3741a"/>
+          </linearGradient></defs>
+          <path d="M20.5 9c-4.6 0-8.4 3-8.4 7s3.8 7 8.4 7c2.2 0 4.2-.7 5.7-1.9l3.3 2.4-.9-3.6c.6-1.2.9-2.5.9-3.9 0-4-3.8-7-9-7z" fill="url(#fishg)"/>
+          <circle cx="18.4" cy="14.6" r="1.25" fill="#20180a"/>
+          <path d="M8.5 12.4C6.6 11 4.6 10.6 3 11c.5 1.7 1.7 3.2 3.4 4.2-1.7 1-2.9 2.5-3.4 4.2 1.6.4 3.6 0 5.5-1.4" fill="none" stroke="url(#fishg)" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="brand-text">咸鱼之王<em>图鉴站</em></span>
+    </a>
+    <nav class="links">
+      <a href="#crystal" data-target="crystal">梦魇水晶</a>
+      <a href="#bead" data-target="bead">灵珠</a>
+      <a href="#pet" data-target="pet">宠物</a>
+    </nav>
+    <span class="nav-tag">数据源 · BWIKI</span>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">SALTED FISH KING · DATABASE</p>
+      <h1>咸鱼之王<span class="grad">数据图鉴</span></h1>
+      <p class="lede">11 颗金色梦魇水晶、11 种灵珠技能、28 只宠物立绘——把版本答案摊开在一页里看清楚。</p>
+      <div class="stats">
+        <div class="stat"><b data-count="11">0</b><i>金色水晶</i></div>
+        <div class="stat"><b data-count="11">0</b><i>灵珠技能</i></div>
+        <div class="stat"><b data-count="28">0</b><i>宠物图鉴</i></div>
+      </div>
+      <div class="cta">
+        <a class="btn btn-primary" href="#crystal">开始查图鉴</a>
+        <a class="btn btn-ghost" href="#pet">看宠物立绘</a>
+      </div>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <div class="orbit o1"></div>
+      <div class="orbit o2"></div>
+      <svg class="hero-gem" viewBox="0 0 220 220">
+        <defs>
+          <linearGradient id="hg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#fff3c4"/><stop offset="45%" stop-color="#f6c453"/><stop offset="100%" stop-color="#a86a12"/>
+          </linearGradient>
+          <radialGradient id="hglow" cx="50%" cy="45%" r="50%">
+            <stop offset="0" stop-color="#ffd980" stop-opacity=".55"/><stop offset="100%" stop-color="#ffd980" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="110" cy="105" r="98" fill="url(#hglow)"/>
+        <g transform="translate(48 40) scale(1.24)">
+          <path d="M50 6 L80 22 L94 50 L50 94 L6 50 L20 22 Z" fill="url(#hg)" stroke="rgba(255,255,255,.55)" stroke-width="1.4"/>
+          <path d="M50 6 L6 50 L50 94 Z" fill="#fff" opacity=".14"/>
+          <path d="M50 6 L94 50 L50 94 Z" fill="#000" opacity=".14"/>
+          <path d="M20 22 L80 22 L64 38 L36 38 Z" fill="#fff" opacity=".2"/>
+          <path d="M38 14 L50 9 L55 20 L43 25 Z" fill="#fff" opacity=".5"/>
+          <path d="M50 6 L80 22 L94 50 L50 94 L6 50 L20 22 Z" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1"/>
+        </g>
+      </svg>
+      <span class="spark s1"></span><span class="spark s2"></span><span class="spark s3"></span>
+    </div>
+  </section>
+
+  <!-- ================= 水晶 ================= -->
+  <section class="section" id="crystal">
+    <div class="sec-head reveal">
+      <p class="kicker">01 · CRYSTAL</p>
+      <h2>梦魇水晶</h2>
+      <p class="sec-desc">每个咸将可佩戴 1 颗梦魇水晶，品质从绿到金共 6 档、每档 0～9 星。这里按<strong>金色品质</strong>整理全部 11 种水晶，属性取自官方 0 星 / 9 星面板。</p>
+    </div>
+
+    <div class="info-row reveal">
+      <div class="info-card">
+        <span class="ic-dot gold"></span>
+        <h4>701 级解锁 · 一人一颗</h4>
+        <p>武将达到 701 级开启水晶，每名咸将镶嵌 1 颗；未满级时水晶处于未激活状态。</p>
+      </div>
+      <div class="info-card">
+        <span class="ic-dot cyan"></span>
+        <h4>6 档品质 · 共 60 级</h4>
+        <p>绿 → 蓝 → 紫 → 橙 → 红 → 金，每档 10 级（+0 ～ +9），升星只提升数值、不改变属性类型。</p>
+      </div>
+      <div class="info-card">
+        <span class="ic-dot pink"></span>
+        <h4>主 C 看破甲</h4>
+        <p>输出位优先破甲 / 攻击，前排优先生命 / 减伤 / 格挡。</p>
+      </div>
+    </div>
+
+    <h3 class="sub-title reveal">品质阶梯 · 基础属性</h3>
+    <div class="ladder reveal" id="ladder"></div>
+
+    <div class="rules reveal">
+      <div class="rule-card">
+        <h4>解锁与升级</h4>
+        <ul class="rule-list">
+          <li>武将达到 <b>701 级</b>解锁水晶，解锁后可<b>无损转换</b>给其他武将，但无法重生。</li>
+          <li>升级消耗<b>金币 + 梦魇晶石</b>，每次升级水晶种类都会<b>随机变化</b>。</li>
+          <li>升级时勾选锁定并消耗<b>金砖</b>，可固定当前种类、只涨数值。</li>
+          <li>转换页面可用梦魇晶石随机换种类，但<b>不会升级</b>。</li>
+        </ul>
+      </div>
+      <div class="rule-card">
+        <h4>种类随等级解锁</h4>
+        <ul class="rule-steps">
+          <li><span class="lv">1–10 级</span><span class="names">攻击 · 生命</span></li>
+          <li><span class="lv">11–17 级</span><span class="names">+ 精准 · 破甲</span></li>
+          <li><span class="lv">18–25 级</span><span class="names">+ 格挡 · 生命暴击</span></li>
+          <li><span class="lv">26–40 级</span><span class="names">+ 暴击 · 技能伤害</span></li>
+          <li><span class="lv">41–60 级</span><span class="names">+ 减伤 · 速度 · 免控（11 种全开）</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="filter-bar reveal">
+      <h3 class="sub-title inline">金色水晶全表</h3>
+      <div class="chips" id="crystalChips">
+        <button class="chip is-active" data-filter="all">全部 11</button>
+        <button class="chip" data-filter="输出">输出</button>
+        <button class="chip" data-filter="生存">生存</button>
+        <button class="chip" data-filter="功能">功能</button>
+      </div>
+    </div>
+    <div class="grid crystal-grid" id="crystalGrid"></div>
+
+    <div class="compare reveal">
+      <div class="compare-head">
+        <div>
+          <p class="kicker">FULL ATTRIBUTE MATRIX</p>
+          <h4>全品质 · 全等级属性矩阵</h4>
+          <p>从绿 +0 到金 +9 的完整数值。低品质阶段部分水晶尚未解锁，对应格为「—」。右侧权重表示随机出该种类的概率相对值。</p>
+        </div>
+        <span class="compare-badge">绿 +0 → 金 +9 · 60 级</span>
+      </div>
+      <div class="compare-scroll">
+        <table class="compare-table matrix-table">
+          <thead><tr id="matrixHead"></tr></thead>
+          <tbody id="matrixBody"></tbody>
+        </table>
+      </div>
+      <p class="compare-note">数据取自游戏内图鉴属性表，与上方金品质卡片一致。</p>
+    </div>
+
+  </section>
+
+  <!-- ================= 灵珠 ================= -->
+  <section class="section" id="bead">
+    <div class="sec-head reveal">
+      <p class="kicker">02 · BEAD</p>
+      <h2>灵珠</h2>
+      <p class="sec-desc">灵珠是深海灵气凝成的材料，可在灵珠商店兑换<strong>技能鱼珠</strong>，打上鱼灵后长期生效。目前共 11 种技能，消耗 1～3 颗灵珠不等；2024.12 更新后已支持无损替换。</p>
+    </div>
+
+    <div class="info-row reveal">
+      <div class="info-card with-icon">
+        <img src="assets/icons/灵珠.png" alt="灵珠" />
+        <div>
+          <h4>灵珠</h4>
+          <p>兑换技能鱼珠的唯一货币。主要来自月度任务达标、深海灯神与黑市。</p>
+        </div>
+      </div>
+      <div class="info-card with-icon">
+        <img src="assets/icons/鱼珠.png" alt="鱼珠" />
+        <div>
+          <h4>技能鱼珠</h4>
+          <p>2024.12 更新后支持<b>无损替换</b>，换技能不再损失数值，可以放心试配。</p>
+        </div>
+      </div>
+      <div class="info-card">
+        <span class="ic-dot gold"></span>
+        <h4>灵贝洗练</h4>
+        <p>灵贝用于洗练鱼珠属性，200 次为一个月度周期，白嫖党建议攒够再洗。</p>
+      </div>
+    </div>
+
+    <div class="grid bead-grid" id="beadGrid"></div>
+
+    <div class="terms reveal">
+      <div class="terms-head">
+        <div>
+          <p class="kicker">ENCHANT RULES</p>
+          <h4>灵贝洗练 · 规则与避坑</h4>
+          <p>灵贝是洗练鱼珠属性的唯一消耗品。洗出的属性<strong>随机占位</strong>、同名<strong>只升不降</strong> —— 先把 3 条目标属性铺满，再集中拉红；顺序反了就得重来。</p>
+        </div>
+        <span class="compare-badge">灵贝洗练</span>
+      </div>
+      <div class="term-groups" id="termGroups"></div>
+    </div>
+  </section>
+
+  <!-- ================= 宠物 ================= -->
+  <section class="section" id="pet">
+    <div class="sec-head reveal">
+      <p class="kicker">03 · PET</p>
+      <h2>宠物</h2>
+      <p class="sec-desc">宠物分<strong>白 / 绿 / 蓝 / 紫 / 橙 / 红 / 金</strong> 7 档品质，横跨海洋、陆地、天空、幻想四大系列。给上阵武将提供属性加成，并通过被动、主动乃至金宠的觉醒技能改变战局。</p>
+    </div>
+
+    <div class="care-row reveal">
+      <div class="care-card">
+        <h4>升级 · 饼干</h4>
+        <p>用饼干提升宠物等级与成长，作用对标四圣的蓝玉。</p>
+      </div>
+      <div class="care-card">
+        <h4>进化 · 灵果</h4>
+        <p>灵果用于宠物进化突破，作用对标四圣的红玉。</p>
+      </div>
+      <div class="care-card">
+        <h4>获取 · 扭蛋与琥珀</h4>
+        <p>扭蛋工坊（每周免费次数）与盐晶商店产出宠物蛋；红宠赤纹蛋约 12000 琥珀，金宠金纹蛋约 249000 琥珀。</p>
+      </div>
+      <div class="care-card">
+        <h4>合成失败会返还</h4>
+        <p>返还琥珀按品质递增：绿 20 / 蓝 25 / 紫 40 / 橙 100 / 红 480 / 金 8300。</p>
+      </div>
+    </div>
+
+    <div class="pet-tabs reveal" id="petTabs"></div>
+    <div class="pet-meta reveal" id="petMeta"></div>
+    <div class="grid pet-grid" id="petGrid"></div>
+
+    <p class="pet-note reveal">点击任意宠物卡片查看完整技能与逐级数值 · 等级上限为各档位参考值，最终以游戏内为准。</p>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="foot-inner">
+    <div>
+      <p class="foot-brand">咸鱼之王 · 图鉴站</p>
+      <p class="foot-sub">非官方粉丝站，数据整理自 <a href="https://wiki.biligame.com/xyzwgame/" target="_blank" rel="noopener">咸鱼之王 BWIKI</a> 与游戏内图鉴表，版本更新后以游戏内为准。</p>
+    </div>
+    <div class="foot-meta">
+      <span>数据更新 · 2026.10.30</span>
+      <span>水晶 11 · 灵珠 11 · 宠物 28</span>
+    </div>
+  </div>
+</footer>
+
+<!-- 宠物详情 -->
+<div class="modal" id="modal" aria-hidden="true">
+  <div class="modal-mask" data-close="1"></div>
+  <div class="modal-card" role="dialog" aria-modal="true">
+    <button class="modal-close" data-close="1" aria-label="关闭">✕</button>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
