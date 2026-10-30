@@ -347,19 +347,10 @@ function initReveal() {
 
 function initNav() {
   const nav = $('#nav');
+  if (!nav) return;
   const onScroll = () => nav.classList.toggle('is-scrolled', window.scrollY > 10);
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
-
-  const links = $$('.links a');
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        links.forEach(l => l.classList.toggle('is-active', l.dataset.target === e.target.id));
-      }
-    });
-  }, { rootMargin: '-45% 0px -50% 0px' });
-  ['crystal', 'bead', 'pet', 'saint'].forEach(id => { const el = document.getElementById(id); if (el) io.observe(el); });
 }
 
 function initCounters() {
@@ -454,11 +445,98 @@ function initTheme() {
 }
 
 /* ============================================================
-   滚动定位
+   分区视图（导航只显示对应一块）
    ============================================================ */
+const VIEW_IDS = ['crystal', 'bead', 'pet', 'saint', 'calendar'];
+let currentView = 'crystal';
+
+function markNavActive(id) {
+  $$('.links a[data-target], #tabbar a[data-target]').forEach(l => {
+    l.classList.toggle('is-active', l.dataset.target === id);
+  });
+}
+
+function revealSection(id) {
+  const sec = document.getElementById(id);
+  if (!sec) return;
+  sec.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+}
+
+function setView(id, opts = {}) {
+  const { updateHash = true, scrollTop = true } = opts;
+  if (!VIEW_IDS.includes(id)) id = 'crystal';
+  currentView = id;
+  const main = document.querySelector('main');
+  if (main) main.setAttribute('data-view', id);
+  markNavActive(id);
+  revealSection(id);
+  if (updateHash) {
+    const want = '#' + id;
+    if ((location.hash || '') !== want) {
+      try { history.replaceState(null, '', want); } catch (e) {}
+    }
+  }
+  if (scrollTop) {
+    try { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    catch (e) { window.scrollTo(0, 0); }
+  }
+}
+
 function scrollToSection(id) {
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setView(id);
+}
+
+function applyHashView(isInit) {
+  const raw = decodeURIComponent(location.hash || '');
+  if (raw.startsWith('#pet-')) {
+    setView('pet', { updateHash: false, scrollTop: !!isInit });
+    openPet(raw.slice(5));
+    return;
+  }
+  const id = raw.replace(/^#/, '');
+  if (VIEW_IDS.includes(id)) {
+    setView(id, { updateHash: false, scrollTop: false });
+    if (isInit) window.scrollTo(0, 0);
+  } else {
+    // #top / 空 / 未知 → 默认水晶 + hero
+    setView('crystal', { updateHash: false, scrollTop: false });
+  }
+}
+
+function initViewMode() {
+  const onNavClick = e => {
+    const a = e.target.closest('a[data-target]');
+    if (!a) return;
+    const id = a.dataset.target;
+    if (!VIEW_IDS.includes(id)) return;
+    e.preventDefault();
+    setView(id);
+  };
+  const desktop = document.querySelector('.links');
+  if (desktop) desktop.addEventListener('click', onNavClick);
+  const bar = $('#tabbar');
+  if (bar) bar.addEventListener('click', onNavClick);
+
+  // brand / hero CTA 等其它 hash 链接
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    if (a.closest('.links') || a.closest('#tabbar')) return;
+    const href = a.getAttribute('href') || '';
+    if (href.length < 2) return;
+    const id = decodeURIComponent(href.slice(1));
+    if (id === 'top') {
+      e.preventDefault();
+      setView('crystal');
+      return;
+    }
+    if (VIEW_IDS.includes(id)) {
+      e.preventDefault();
+      setView(id);
+    }
+  });
+
+  window.addEventListener('hashchange', () => applyHashView(false));
 }
 
 /* ============================================================
@@ -477,7 +555,7 @@ function buildSearchIndex() {
     `${b.name} 灵珠 鱼珠 ${b.tier} ${b.effect} ${b.fit}`, () => scrollToSection('bead')));
   PETS.forEach(p => push('宠物', p.name, `${p.quality}色 · ${p.series}系`,
     `${p.name} ${p.quality} ${p.series} ${p.desc} ${p.skills.map(s => s.name + ' ' + s.kind).join(' ')}`,
-    () => { closeSearch(); openPet(p.name); }));
+    () => { closeSearch(); setView('pet', { updateHash: false, scrollTop: false }); openPet(p.name); }));
   SAINTS.forEach(s => s.members.forEach(m => push('四圣', m.name, `${s.key} · ${m.tags.join(' / ')}`,
     `${s.key} ${s.en} ${m.name} ${m.tags.join(' ')} ${s.desc}`, () => scrollToSection('saint'))));
   TERMS.forEach(g => g.items.forEach(([k, v]) => push('词条', k, g.title, `${k} ${v} ${g.title}`,
@@ -570,20 +648,7 @@ function initSearch() {
    移动端底部导航
    ============================================================ */
 function initTabbar() {
-  const bar = $('#tabbar');
-  if (!bar) return;
-  const links = $$('#tabbar a');
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        links.forEach(l => l.classList.toggle('is-active', l.dataset.target === e.target.id));
-      }
-    });
-  }, { rootMargin: '-45% 0px -50% 0px' });
-  ['crystal', 'bead', 'pet', 'saint', 'calendar'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) io.observe(el);
-  });
+  // 点击与高亮由 initViewMode / setView 统一处理
 }
 
 /* ============================================================
@@ -900,6 +965,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initReveal();
   initNav();
   initTabbar();
+  initViewMode();
   initCounters();
   initOverlays();
   initCrystalFilter();
@@ -907,7 +973,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initLike();
   initVisitCount();
 
-  // 深链：#pet-炎鬃狮 直接打开详情
-  const hash = decodeURIComponent(location.hash || '');
-  if (hash.startsWith('#pet-')) openPet(hash.slice(5));
+  // 深链 / 默认分区：#pet-名称 开详情；#crystal 等切视图
+  applyHashView(true);
 });
