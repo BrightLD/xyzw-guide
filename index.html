@@ -31,7 +31,17 @@
       <a href="#bead" data-target="bead">灵珠</a>
       <a href="#pet" data-target="pet">宠物</a>
       <a href="#saint" data-target="saint">四圣</a>
+      <a href="#calendar" data-target="calendar">日历</a>
     </nav>
+    <div class="nav-actions">
+      <button class="icon-btn" id="searchBtn" aria-label="搜索" title="搜索（Ctrl / ⌘ + K）">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16.2 16.2L20.5 20.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn theme-btn" id="themeBtn" aria-label="切换深色模式" title="切换深色模式">
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.4A8.1 8.1 0 0 1 9.6 4a8.2 8.2 0 1 0 10.4 10.4z" fill="currentColor"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.1" fill="currentColor"/><g stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 2.6v2.5M12 18.9v2.5M2.6 12h2.5M18.9 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8"/></g></svg>
+      </button>
+    </div>
     <span class="nav-tag">数据源 · BWIKI</span>
   </div>
 </header>
@@ -253,6 +263,34 @@
     <div class="grid saint-grid reveal" id="saintGrid"></div>
 
     <p class="compare-note">特殊词条按版本爆料整理，华佗 / 典韦 尚未公开、标为「待确认」；数值以游戏内为准。</p>
+  </section>
+
+  <!-- ================= 活动日历 ================= -->
+  <section class="section" id="calendar">
+    <div class="sec-head reveal">
+      <p class="kicker">05 · CALENDAR</p>
+      <h2>活动日历</h2>
+      <p class="sec-desc">把<strong>每日 / 每周 / 每月</strong>的固定节奏摊开看。点击日期查看当天可做的活动，避免漏掉灯神挑战、达标任务与月度灵贝。</p>
+    </div>
+
+    <div class="cal reveal">
+      <div class="cal-head">
+        <button class="cal-nav" id="calPrev" aria-label="上个月">‹</button>
+        <div class="cal-title">
+          <b id="calMonth">—</b>
+          <span id="calSub">周期活动参考</span>
+        </div>
+        <button class="cal-nav" id="calNext" aria-label="下个月">›</button>
+      </div>
+      <div class="cal-week">
+        <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-legend" id="calLegend"></div>
+    </div>
+
+    <div class="cal-day reveal" id="calDay"></div>
+    <div class="cal-rhythm reveal" id="calRhythm"></div>
   </section>
 
 </main>
