@@ -271,20 +271,21 @@
     <div class="sec-head reveal">
       <p class="kicker">05 · CALENDAR</p>
       <h2>活动日历</h2>
-      <p class="sec-desc">把<strong>每日 / 每周 / 每月</strong>的固定节奏摊开看。点击日期查看当天可做的活动，避免漏掉灯神挑战、达标任务与月度灵贝。</p>
+      <p class="sec-desc"><strong>周活动三周轮换、每周固定玩法、每日必做</strong>一屏看清。彩色横条横跨几天就占几格，点击日期可查看当天全部活动与剩余天数。</p>
     </div>
 
     <div class="cal reveal">
       <div class="cal-head">
-        <button class="cal-nav" id="calPrev" aria-label="上个月">‹</button>
+        <button class="cal-nav" id="calPrev" aria-label="上个月">‹ 上月</button>
         <div class="cal-title">
           <b id="calMonth">—</b>
-          <span id="calSub">周期活动参考</span>
+          <span id="calSub">周期活动一览</span>
         </div>
-        <button class="cal-nav" id="calNext" aria-label="下个月">›</button>
+        <button class="cal-nav" id="calNext" aria-label="下个月">下月 ›</button>
       </div>
-      <div class="cal-week">
-        <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+      <p class="cal-tip"><i></i>彩色横条 = 持续多天的周期活动，横跨几天就占几格；点击日期查看当天全部活动。</p>
+      <div class="cal-dow">
+        <span>周日</span><span>周一</span><span>周二</span><span>周三</span><span>周四</span><span>周五</span><span>周六</span>
       </div>
       <div class="cal-grid" id="calGrid"></div>
       <div class="cal-legend" id="calLegend"></div>

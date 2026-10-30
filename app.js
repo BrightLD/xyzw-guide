@@ -598,95 +598,173 @@ function initTabbar() {
    活动日历
    ============================================================ */
 const WD = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+const DAY_MS = 86400000;
 let calCursor = new Date();
+let calSel = new Date();
 
+/* 日期 -> 天序号（用 UTC 归一，避免时区/夏令时误差） */
+const dayNum = d => Math.round(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / DAY_MS);
+const numToDate = n => {
+  const t = new Date(n * DAY_MS);
+  return new Date(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate());
+};
+const parseYMD = str => { const [y, m, d] = str.split('-').map(Number); return new Date(y, m - 1, d); };
+
+/* 周期事件与 [from,to] 相交的所有区间 -> [[startDay, endDay], ...] */
+function cycleRanges(ev, from, to) {
+  if (ev.kind !== 'cycle') return [];
+  const a = dayNum(parseYMD(ev.anchor));
+  const c = ev.cycle, dur = ev.dur || 1;
+  const k = Math.floor((from - a) / c);
+  const out = [];
+  for (let i = k - 1; i <= k + Math.ceil((to - from) / c) + 2; i++) {
+    const st = a + i * c, en = st + dur - 1;
+    if (en >= from && st <= to) out.push([st, en]);
+  }
+  return out;
+}
+
+/* 某天生效的事件 */
 function eventsOn(date) {
-  const d = date.getDate();
-  return CAL_EVENTS.filter(e => {
-    if (e.rule === 'daily') return true;
-    if (e.rule === 'weekly') return e.weekday === date.getDay();
-    if (e.rule === 'monthly') return d === 1;
-    return false;
+  const n = dayNum(date);
+  return CAL_EVENTS.filter(ev => {
+    if (ev.kind !== 'cycle') return true;
+    return cycleRanges(ev, n, n).length > 0;
   });
 }
 
+/* 渲染一周：日期数字行 + 跨天事件条 */
+function weekHTML(wStart, y, m, todayN) {
+  const ws = dayNum(wStart), we = ws + 6;
+
+  let nums = '';
+  for (let i = 0; i < 7; i++) {
+    const dt = numToDate(ws + i);
+    const inMonth = dt.getMonth() === m && dt.getFullYear() === y;
+    const cls = ['cw-num'];
+    if (!inMonth) cls.push('is-out');
+    if (ws + i === todayN) cls.push('is-today');
+    if (calSel && dayNum(calSel) === ws + i) cls.push('is-sel');
+    nums += `<button class="${cls.join(' ')}" data-date="${dt.getFullYear()}-${dt.getMonth() + 1}-${dt.getDate()}"><b>${dt.getDate()}</b></button>`;
+  }
+
+  const bars = [];
+  CAL_EVENTS.forEach(ev => {
+    cycleRanges(ev, ws, we).forEach(([st, en]) => {
+      const si = Math.max(st, ws), ei = Math.min(en, we);
+      bars.push({
+        ev,
+        left: (si - ws) / 7 * 100,
+        width: (ei - si + 1) / 7 * 100,
+        cutL: st < ws,
+        cutR: en > we,
+        start: si,
+        days: ei - si + 1
+      });
+    });
+  });
+  bars.sort((a, b) => a.start - b.start || b.days - a.days);
+
+  const barsHTML = bars.map(b => {
+    const cls = ['cw-bar'];
+    if (b.cutL) cls.push('cut-l');
+    if (b.cutR) cls.push('cut-r');
+    return `<div class="${cls.join(' ')}" style="margin-left:${b.left.toFixed(3)}%;width:${b.width.toFixed(3)}%;background:${b.ev.color}" title="${b.ev.name}">${b.ev.name}</div>`;
+  }).join('');
+
+  return `<div class="cal-week">
+    <div class="cw-nums">${nums}</div>
+    <div class="cw-bars">${barsHTML}</div>
+  </div>`;
+}
+
 function renderCalendar() {
-  const y = calCursor.getFullYear();
-  const m = calCursor.getMonth();
+  const y = calCursor.getFullYear(), m = calCursor.getMonth();
   $('#calMonth').textContent = `${y} 年 ${m + 1} 月`;
   const now = new Date();
   const isThisMonth = now.getFullYear() === y && now.getMonth() === m;
-  $('#calSub').textContent = isThisMonth ? '本月 · 周期活动参考' : '周期活动参考';
+  $('#calSub').textContent = isThisMonth ? '本月 · 周期活动一览' : '周期活动一览';
 
   const first = new Date(y, m, 1);
-  const startDow = (first.getDay() + 6) % 7;
+  const startDow = first.getDay();                      // 周日起始
   const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const rows = Math.ceil((startDow + daysInMonth) / 7);
+  const gridStart = new Date(y, m, 1 - startDow);
+  const todayN = dayNum(now);
 
   let html = '';
-  for (let i = 0; i < startDow; i++) html += '<span class="cal-cell is-blank"></span>';
-  for (let d = 1; d <= daysInMonth; d++) {
-    const date = new Date(y, m, d);
-    const evs = eventsOn(date);
-    const isToday = isThisMonth && now.getDate() === d;
-    const dots = evs.slice(0, 5).map(e => `<i style="background:${e.color}"></i>`).join('');
-    html += `<button class="cal-cell${isToday ? ' is-today' : ''}" data-day="${d}">
-      <b>${d}</b><span class="cal-dots">${dots}</span></button>`;
+  for (let r = 0; r < rows; r++) {
+    const wStart = new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate() + r * 7);
+    html += weekHTML(wStart, y, m, todayN);
   }
   $('#calGrid').innerHTML = html;
 
   $('#calLegend').innerHTML = CAL_EVENTS.map(e =>
     `<span><i style="background:${e.color}"></i>${e.name}</span>`).join('');
 
-  $$('#calGrid .cal-cell[data-day]').forEach(btn => btn.addEventListener('click', () => {
-    $$('#calGrid .cal-cell').forEach(c => c.classList.remove('is-sel'));
-    btn.classList.add('is-sel');
-    renderCalDay(+btn.dataset.day);
-  }));
-
-  const sel = isThisMonth ? now.getDate() : 1;
-  const selBtn = $(`#calGrid .cal-cell[data-day="${sel}"]`);
-  if (selBtn) { selBtn.classList.add('is-sel'); }
-  renderCalDay(sel);
+  renderCalDay(calSel);
 }
 
-function renderCalDay(d) {
-  const y = calCursor.getFullYear();
-  const m = calCursor.getMonth();
-  const date = new Date(y, m, d);
-  const evs = eventsOn(date);
-  const label = { daily: '每日', weekly: '每周', monthly: '每月' };
+function renderCalDay(date) {
+  const n = dayNum(date);
+  const rows = eventsOn(date).map(ev => {
+    if (ev.kind === 'cycle') {
+      const r = cycleRanges(ev, n, n)[0];
+      const left = r[1] - n + 1;
+      return { ...ev, tag: left === 1 ? '今天最后一天' : `剩 ${left} 天`, urgent: left === 1 };
+    }
+    return { ...ev, tag: ev.kind === 'daily' ? '每日' : '整月' };
+  }).sort((a, b) => (a.kind === 'cycle' ? 0 : 1) - (b.kind === 'cycle' ? 0 : 1));
+
   $('#calDay').innerHTML = `
     <div class="cal-day-head">
-      <b>${m + 1} 月 ${d} 日</b>
-      <span>${WD[date.getDay()]} · ${evs.length} 项</span>
+      <b>${date.getMonth() + 1} 月 ${date.getDate()} 日</b>
+      <span>${WD[date.getDay()]} · ${rows.length} 项进行中</span>
     </div>
     <ul class="cal-day-list">
-      ${evs.map(e => `<li><i style="background:${e.color}"></i>
+      ${rows.map(e => `<li><i style="background:${e.color}"></i>
         <div><b>${e.name}</b><span>${e.desc}</span></div>
-        <em>${label[e.rule]}</em></li>`).join('')}
+        <em${e.urgent ? ' class="is-urgent"' : ''}>${e.tag}</em></li>`).join('')}
     </ul>`;
 }
 
 function renderCalRhythm() {
-  const groups = [['daily', '每日'], ['weekly', '每周'], ['monthly', '每月']];
+  const groups = [
+    ['周活动 · 三周轮换', CAL_EVENTS.filter(e => e.kind === 'cycle' && e.cycle === 21)],
+    ['每周固定', CAL_EVENTS.filter(e => e.kind === 'cycle' && e.cycle === 7)],
+    ['每日与整月', CAL_EVENTS.filter(e => e.kind !== 'cycle')]
+  ];
   $('#calRhythm').innerHTML = `
     <h3 class="sub-title">周期节奏</h3>
     <div class="rhythm-grid">
-      ${groups.map(([rule, lb]) => `
+      ${groups.map(([lb, list]) => `
         <div class="rhythm-card">
           <h4>${lb}</h4>
-          <ul>${CAL_EVENTS.filter(e => e.rule === rule).map(e => `
+          <ul>${list.map(e => `
             <li><i style="background:${e.color}"></i><b>${e.name}</b><span>${e.desc}</span></li>`).join('')}
           </ul>
         </div>`).join('')}
     </div>
-    <p class="compare-note">以上为常规节奏参考，具体开放时间与次数以游戏内公告为准。</p>`;
+    <p class="compare-note">宝箱周 / 黑市周 / 招募周为三周轮换、每周五开启；限时活动（广寒宫、后山、夺旗赛等）以游戏内公告为准。</p>`;
 }
 
 function initCalendar() {
   if (!$('#calGrid')) return;
+  calSel = new Date();
   renderCalendar();
   renderCalRhythm();
+
+  $('#calGrid').addEventListener('click', ev => {
+    const btn = ev.target.closest('.cw-num');
+    if (!btn) return;
+    const [y, m, d] = btn.dataset.date.split('-').map(Number);
+    calSel = new Date(y, m - 1, d);
+    if (y !== calCursor.getFullYear() || m - 1 !== calCursor.getMonth()) {
+      calCursor = new Date(y, m - 1, 1);
+    }
+    renderCalendar();
+  });
+
   $('#calPrev').addEventListener('click', () => {
     calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth() - 1, 1);
     renderCalendar();

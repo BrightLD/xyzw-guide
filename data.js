@@ -2380,14 +2380,28 @@ const SAINTS = [
 /* ============ 活动日历（周期节奏参考） ============ */
 /* 说明：daily 每天出现；weekly 按 weekday(0=周日) 标注；monthly 每月 1 日标注。
    具体开放时间以游戏内公告为准，此处为常规节奏参考。 */
+/* 日历事件：kind='cycle' 为周期活动（用 anchor 锚点 + cycle 周期天数 + dur 持续天数推算，可跨天画条）
+   kind='daily' 为每日固定，kind='month' 为整月活动 */
 const CAL_EVENTS = [
-  { id: 'task',   name: '每日任务',   color: '#378ADD', rule: 'daily',   desc: '清日常、领活跃奖励，是资源的基本盘。' },
-  { id: 'dream',  name: '咸王梦境',   color: '#7F77DD', rule: 'daily',   desc: '每日挑战，产出梦魇晶石与资源，记得打满。' },
-  { id: 'arena',  name: '咸神竞技场', color: '#D4537E', rule: 'daily',   desc: '每日免费挑战次数，尽量打满排名奖励。' },
-  { id: 'salt',   name: '盐场',       color: '#1D9E75', rule: 'daily',   desc: '占矿与产出，按时收取避免被抢。' },
-  { id: 'lamp',   name: '灯神挑战',   color: '#BA7517', rule: 'weekly',  weekday: 0, desc: '一周 10 次；周日先打到当周最高层再扫荡。' },
-  { id: 'recruit',name: '招募达标',   color: '#D4537E', rule: 'weekly',  weekday: 1, desc: '周常招募达标，按周结算，别在周初就用光。' },
-  { id: 'chest',  name: '宝箱达标',   color: '#0F6E56', rule: 'weekly',  weekday: 1, desc: '周常宝箱达标，攒够再开更划算。' },
-  { id: 'club',   name: '俱乐部',     color: '#854F0B', rule: 'weekly',  weekday: 3, desc: '俱乐部捐献与活动，稳定产出资源。' },
-  { id: 'bead',   name: '灵贝达标',   color: '#534AB7', rule: 'monthly', desc: '每月累计 200 次灵贝消耗达标，换取灵珠。' }
+  // ---- 周活动 · 三周轮换，每周五开启、持续 7 天 ----
+  { id: 'chest',   name: '宝箱周',  color: '#3A6274', kind: 'cycle', anchor: '2026-10-16', cycle: 21, dur: 7,
+    desc: '宝箱达标周：开箱数量达标领奖，攒够再开更划算。' },
+  { id: 'market',  name: '黑市周',  color: '#7B2FF7', kind: 'cycle', anchor: '2026-10-23', cycle: 21, dur: 7,
+    desc: '黑市周：黑市兑换折扣与额外商品，优先补缺口资源。' },
+  { id: 'recruit', name: '招募周',  color: '#E23B3B', kind: 'cycle', anchor: '2026-10-09', cycle: 21, dur: 7,
+    desc: '招募达标周：招募次数达标领奖，别在周初就用光。' },
+  // ---- 每周固定 ----
+  { id: 'race',      name: '赛车',     color: '#E619C9', kind: 'cycle', anchor: '2026-10-10', cycle: 7, dur: 5,
+    desc: '周六开启、持续 5 天的限时赛车玩法。' },
+  { id: 'weekmatch', name: '周赛',     color: '#8B1A1A', kind: 'cycle', anchor: '2026-10-03', cycle: 7, dur: 1,
+    desc: '每周六结算的周赛，记得打满场次。' },
+  { id: 'lamp',      name: '灯神挑战', color: '#BA7517', kind: 'cycle', anchor: '2026-10-04', cycle: 7, dur: 1,
+    desc: '一周 10 次；周日先打到当周最高层再扫荡。' },
+  { id: 'club',      name: '俱乐部',   color: '#854F0B', kind: 'cycle', anchor: '2026-10-01', cycle: 7, dur: 1,
+    desc: '俱乐部捐献与活动，稳定产出资源。' },
+  // ---- 每日 / 整月 ----
+  { id: 'dream', name: '咸王梦境',   color: '#7F77DD', kind: 'daily', desc: '每日挑战，产出梦魇晶石与资源，记得打满。' },
+  { id: 'arena', name: '咸神竞技场', color: '#D4537E', kind: 'daily', desc: '每日免费挑战次数，尽量打满排名奖励。' },
+  { id: 'salt',  name: '盐场',       color: '#1D9E75', kind: 'daily', desc: '占矿与产出，按时收取避免被抢。' },
+  { id: 'bead',  name: '灵贝达标',   color: '#534AB7', kind: 'month', desc: '每月累计 200 次灵贝消耗达标，换取灵珠。' }
 ];
