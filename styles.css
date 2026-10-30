@@ -1098,3 +1098,13 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 [data-theme="dark"] .mh-portrait{background:#101826}
 [data-theme="dark"] .hero-gem{filter:drop-shadow(0 20px 40px rgba(224,173,62,.25))}
 [data-theme="dark"] ::selection{background:rgba(224,173,62,.3)}
+
+
+.like-num{
+  min-width: 1.2em;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+  letter-spacing: .02em;
+}
+.like-btn.is-liked .like-num{ opacity: .95; }

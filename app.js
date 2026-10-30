@@ -799,8 +799,10 @@ async function initVisitCount() {
   }
 }
 
-/* ---------- 点赞 ---------- */
+
+/* ---------- 点赞（全站计数） ---------- */
 const LIKE_KEY = 'xyzw-like';
+const LIKE_API = VISIT_API ? (VISIT_API.replace(/\/$/, '') + '/like') : '';
 
 function likeSparks(btn) {
   const box = btn.querySelector('.like-spark');
@@ -823,6 +825,11 @@ function initLike() {
   const btn = $('#likeBtn');
   if (!btn) return;
   const txt = $('#likeTxt');
+  const num = $('#likeCount');
+
+  const setCount = n => {
+    if (num) num.textContent = Number(n || 0).toLocaleString('zh-CN');
+  };
 
   const paint = liked => {
     btn.classList.toggle('is-liked', liked);
@@ -835,11 +842,46 @@ function initLike() {
   try { liked = localStorage.getItem(LIKE_KEY) === '1'; } catch (e) { /* 隐私模式忽略 */ }
   paint(liked);
 
-  btn.addEventListener('click', () => {
-    liked = !liked;
+  // 先拉全站总数
+  if (LIKE_API) {
+    fetch(LIKE_API, { method: 'GET', mode: 'cors', cache: 'no-store' })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(d => setCount(d && d.count))
+      .catch(() => { /* 保持默认 0 */ });
+  }
+
+  let busy = false;
+  btn.addEventListener('click', async () => {
+    if (busy) return;
+    const next = !liked;
+    liked = next;
     paint(liked);
     try { localStorage.setItem(LIKE_KEY, liked ? '1' : '0'); } catch (e) {}
     if (liked) likeSparks(btn);
+
+    if (!LIKE_API) return;
+    busy = true;
+    btn.disabled = true;
+    try {
+      const res = await fetch(LIKE_API, {
+        method: 'POST',
+        mode: 'cors',
+        cache: 'no-store',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: liked ? 'like' : 'unlike' }),
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      setCount(data && data.count);
+    } catch (e) {
+      // 回滚本地状态
+      liked = !liked;
+      paint(liked);
+      try { localStorage.setItem(LIKE_KEY, liked ? '1' : '0'); } catch (err) {}
+    } finally {
+      busy = false;
+      btn.disabled = false;
+    }
   });
 }
 
