@@ -481,8 +481,8 @@ function buildSearchIndex() {
   CRYSTALS.forEach(c => push('水晶', c.name, `${c.tag} · ${c.attr}`,
     `${c.name} ${c.tag} ${c.attr} ${c.comment} ${(c.s9 || []).map(x => x[0]).join(' ')}`,
     () => { scrollToSection('crystal'); flashCrystal(c.name); }));
-  BEADS.forEach(b => push('灵珠', b.name, `${b.cost} 灵珠 · ${b.tier}`,
-    `${b.name} ${b.tier} ${b.effect} ${b.fit}`, () => scrollToSection('bead')));
+  BEADS.forEach(b => push('鱼珠', b.name, `${b.cost} 灵珠 · ${b.tier}`,
+    `${b.name} 灵珠 鱼珠 ${b.tier} ${b.effect} ${b.fit}`, () => scrollToSection('bead')));
   PETS.forEach(p => push('宠物', p.name, `${p.quality}色 · ${p.series}系`,
     `${p.name} ${p.quality} ${p.series} ${p.desc} ${p.skills.map(s => s.name + ' ' + s.kind).join(' ')}`,
     () => { closeSearch(); openPet(p.name); }));

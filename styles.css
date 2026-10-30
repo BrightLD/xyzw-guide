@@ -475,6 +475,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   padding-top:12px;border-top:1px dashed rgba(18,38,70,.12);
 }
 .bc-fit b{color:var(--ink-2);font-weight:600;margin-right:6px}
+.bead-note{margin:18px 2px 0;font-size:12px;line-height:1.8;color:var(--ink-3)}
+.bead-note b{color:var(--gold-strong);font-weight:600}
 
 /* ---------- 宠物 ---------- */
 .pet-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:36px 0 18px}
@@ -981,6 +983,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 [data-theme="dark"] .sm-tags i{background:#1b2739;border-color:var(--line);color:var(--ink-2)}
 [data-theme="dark"] .sr-type span,
 [data-theme="dark"] .cal-day-list em{background:#1b2739;color:var(--ink-2)}
+[data-theme="dark"] .badge.cost{background:rgba(13,127,156,.18);border-color:rgba(111,211,234,.28);color:#6fd3ea}
+[data-theme="dark"] .badge.t2{background:#1b2739;border-color:var(--line);color:var(--ink-3)}
 [data-theme="dark"] .cal-cell{background:#16202f}
 [data-theme="dark"] .cal-cell:hover{background:#1d2a3e}
 [data-theme="dark"] .cal-cell.is-today{background:#241f13}
