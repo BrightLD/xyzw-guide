@@ -64,6 +64,15 @@ function gemSVG(c1, c2, attr, size = 52) {
   </svg>`;
 }
 
+/* 官方梦魇晶石图标 + 属性徽记角标 */
+function gemNode(c, size = 52) {
+  const g = EMBLEM[c.attr] || EMBLEM['攻击'];
+  return `<span class="cc-gem" style="width:${size}px;height:${size}px">
+    <img src="assets/icons/梦魇晶石-金.png" alt="${c.attr}水晶" loading="lazy" />
+    <svg class="cc-emblem" viewBox="0 0 24 24" style="--ec1:${c.c1};--ec2:${c.c2}" aria-hidden="true"><path d="${g}"/></svg>
+  </span>`;
+}
+
 /* ---------- 品质阶梯 ---------- */
 const LADDER = [
   { k: '绿', img: '晶石-绿', atk: '100', hp: '500', pct: '5%' },
@@ -90,7 +99,7 @@ function renderCrystals(filter = 'all') {
   $('#crystalGrid').innerHTML = list.map(c => `
     <article class="crystal-card" style="--tint:${hexA(c.c1, .18)}">
       <div class="cc-top">
-        ${gemSVG(c.c1, c.c2, c.attr, 52)}
+        ${gemNode(c, 52)}
         <div>
           <h3 class="cc-name">${c.name}</h3>
           <span class="cc-tag">${c.tag} · ${c.attr}</span>
@@ -144,12 +153,13 @@ function renderMatrix() {
     CRYSTAL_MATRIX.cols.map(c => {
       const gold = c.q === '金';
       return `<th class="col-q q-${c.q}${gold ? ' is-gold' : ''}">
+        <img class="qh-icon" src="assets/icons/晶石-${c.q}.png" alt="${c.q}色晶石" loading="lazy" />
         <span class="q">${c.q}</span><span class="lv">${c.lv}</span></th>`;
     }).join('');
 
   body.innerHTML = CRYSTAL_MATRIX.rows.map(r => {
     const c = crystalOf(r.name);
-    const gem = c ? `<span class="t-gem">${gemSVG(c.c1, c.c2, c.attr, 24)}</span>` : '';
+    const gem = c ? `<span class="t-gem">${gemNode(c, 24)}</span>` : '';
     const cells = r.cells.map((cell, i) => {
       const isGold = CRYSTAL_MATRIX.cols[i].q === '金';
       if (!cell || !cell.length) return `<td class="mv-cell is-empty${isGold ? ' col-max' : ''}">—</td>`;
@@ -349,7 +359,7 @@ function initNav() {
       }
     });
   }, { rootMargin: '-45% 0px -50% 0px' });
-  ['crystal', 'bead', 'pet'].forEach(id => { const el = document.getElementById(id); if (el) io.observe(el); });
+  ['crystal', 'bead', 'pet', 'saint'].forEach(id => { const el = document.getElementById(id); if (el) io.observe(el); });
 }
 
 function initCounters() {
@@ -390,6 +400,36 @@ function initCrystalFilter() {
   });
 }
 
+/* ---------- 四圣图鉴 ---------- */
+function renderSaints() {
+  const wrap = $('#saintGrid');
+  if (!wrap) return;
+  wrap.innerHTML = SAINTS.map(s => `
+    <article class="saint-card" style="--sc:${s.color};--sc-soft:${hexA(s.color, .1)};--sc-line:${hexA(s.color, .3)}">
+      <div class="saint-head">
+        <span class="saint-emblem">${s.key[0]}</span>
+        <div class="saint-title">
+          <h3 class="saint-name">${s.key}</h3>
+          <span class="saint-en">${s.en}</span>
+        </div>
+        <span class="saint-role">${s.role}</span>
+      </div>
+      <p class="saint-desc">${s.desc}</p>
+      <div class="saint-base">
+        <span class="sb-k">基础加成</span>
+        <b class="sb-v">攻击 · 血量 · 速度</b>
+        <em class="sb-skin">皮肤 +8%</em>
+      </div>
+      <ul class="saint-members">
+        ${s.members.map(m => `
+          <li>
+            <span class="sm-name">${m.name}</span>
+            <span class="sm-tags">${m.tags.map(t => `<i class="${m.pending ? 'is-pending' : ''}">${t}</i>`).join('')}</span>
+          </li>`).join('')}
+      </ul>
+    </article>`).join('');
+}
+
 /* ---------- 启动 ---------- */
 document.addEventListener('DOMContentLoaded', () => {
   renderLadder();
@@ -398,6 +438,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderBeads();
   renderTerms();
   renderPets();
+  renderSaints();
   initBubbles();
   initReveal();
   initNav();

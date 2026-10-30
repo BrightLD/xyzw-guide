@@ -91,7 +91,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   background:linear-gradient(145deg,#fffdf6,#fdf1d6);
   border:1px solid rgba(201,143,28,.42);
   box-shadow:0 6px 14px -10px rgba(201,143,28,.9),inset 0 1px 0 #fff;
+  overflow:hidden;
 }
+.brand-mark img{width:100%;height:100%;object-fit:cover;display:block}
 .brand-mark svg{width:24px;height:24px}
 .brand-text{font-weight:700;letter-spacing:.02em;font-size:15.5px;color:var(--ink)}
 .brand-text em{font-style:normal;color:var(--gold-strong);margin-left:5px;font-weight:600}
@@ -271,7 +273,15 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .crystal-card:hover{transform:translateY(-5px);border-color:rgba(201,143,28,.38);box-shadow:var(--shadow-md)}
 .crystal-card:hover::after{opacity:1}
 .cc-top{display:flex;align-items:center;gap:12px;position:relative;z-index:1}
-.cc-gem{width:52px;height:52px;flex:0 0 auto;filter:drop-shadow(0 8px 12px rgba(18,38,70,.22))}
+.cc-gem{position:relative;width:52px;height:52px;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center}
+.cc-gem > img{width:100%;height:100%;object-fit:contain;display:block;filter:drop-shadow(0 8px 12px rgba(18,38,70,.22))}
+.cc-emblem{
+  position:absolute;right:-3px;bottom:-3px;width:44%;height:44%;box-sizing:border-box;
+  padding:3px;border-radius:50%;
+  background:linear-gradient(135deg,var(--ec1),var(--ec2));
+  border:1.6px solid #fff;fill:#fff;
+  box-shadow:0 2px 6px rgba(18,38,70,.24);
+}
 .cc-name{font-size:16px;font-weight:700;letter-spacing:.01em;margin:0;color:var(--ink)}
 .cc-tag{
   display:inline-block;margin-top:3px;font-size:11px;color:var(--ink-3);
@@ -329,6 +339,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .compare-table .col-n{white-space:nowrap}
 .t-gem{display:inline-block;vertical-align:-7px;margin-right:9px}
 .t-gem .cc-gem{width:26px;height:26px}
+.t-gem .cc-emblem{padding:1.5px;border-width:1px}
 .t-name{font-weight:700;color:var(--ink);font-size:13.5px}
 .t-tag{
   margin-left:9px;font-size:10.5px;color:var(--ink-3);
@@ -344,6 +355,10 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .matrix-table thead th{padding:10px 5px;text-align:center}
 .matrix-table thead th.col-n{text-align:left;padding-left:14px;min-width:104px}
 .matrix-table thead th.col-w{width:46px}
+.matrix-table thead th.col-q .qh-icon{
+  width:17px;height:17px;object-fit:contain;display:block;margin:0 auto 2px;
+  filter:drop-shadow(0 2px 3px rgba(18,38,70,.16));
+}
 .matrix-table thead th.col-q .q{
   display:block;font-size:10.5px;letter-spacing:.08em;color:var(--ink-3);font-weight:700;
 }
@@ -474,6 +489,53 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .care-card:hover{transform:translateY(-2px);border-color:rgba(18,149,184,.32);box-shadow:var(--shadow-md)}
 .care-card h4{margin:0 0 6px;font-size:13.5px;font-weight:700;color:var(--ink)}
 .care-card p{margin:0;font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+
+/* ---------- 四圣 ---------- */
+.saint-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:34px}
+.saint-card{
+  position:relative;padding:20px 22px;border-radius:var(--r-lg,18px);background:#fff;
+  border:1px solid var(--line);box-shadow:var(--shadow-sm);overflow:hidden;
+  transition:transform .25s,box-shadow .25s,border-color .25s;
+}
+.saint-card::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(120% 90% at 100% 0%,var(--sc-soft),transparent 62%);
+}
+.saint-card:hover{transform:translateY(-3px);border-color:var(--sc-line);box-shadow:var(--shadow-md)}
+.saint-head{display:flex;align-items:center;gap:12px;position:relative;z-index:1}
+.saint-emblem{
+  width:44px;height:44px;flex:0 0 auto;border-radius:13px;display:grid;place-items:center;
+  font-size:20px;font-weight:800;color:#fff;letter-spacing:.02em;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--sc) 78%,#fff),var(--sc));
+  box-shadow:0 6px 14px -8px var(--sc-line),inset 0 1px 0 rgba(255,255,255,.45);
+}
+.saint-title{display:flex;flex-direction:column;gap:1px}
+.saint-name{font-size:18px;font-weight:800;margin:0;color:var(--ink)}
+.saint-en{font-size:9.5px;letter-spacing:.14em;font-weight:700;color:var(--sc);opacity:.85}
+.saint-role{
+  margin-left:auto;font-size:11px;font-weight:700;color:var(--sc);
+  padding:4px 10px;border-radius:99px;background:var(--sc-soft);
+  border:1px solid var(--sc-line);white-space:nowrap;
+}
+.saint-desc{margin:12px 0 0;font-size:12.5px;line-height:1.65;color:var(--ink-2);position:relative;z-index:1}
+.saint-base{
+  display:flex;align-items:center;gap:8px;margin-top:14px;padding:9px 12px;border-radius:10px;
+  background:var(--sc-soft);border:1px solid var(--sc-line);position:relative;z-index:1;font-size:12px;
+}
+.sb-k{color:var(--ink-3);font-weight:700}
+.sb-v{color:var(--ink);font-weight:700}
+.sb-skin{margin-left:auto;font-style:normal;font-weight:800;color:var(--sc);font-variant-numeric:tabular-nums}
+.saint-members{list-style:none;margin:14px 0 0;padding:0;position:relative;z-index:1}
+.saint-members li{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px dashed var(--line)}
+.saint-members li:first-child{border-top:0}
+.sm-name{font-size:13px;font-weight:700;color:var(--ink);flex:0 0 62px}
+.sm-tags{display:flex;flex-wrap:wrap;gap:6px}
+.sm-tags i{
+  font-style:normal;font-size:11px;font-weight:600;color:var(--ink-2);
+  padding:2px 8px;border-radius:6px;background:#f4f7fc;border:1px solid var(--line);
+  font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+.sm-tags i.is-pending{color:var(--ink-3);background:#f7f8fa;border-style:dashed}
 .pet-tab{
   display:flex;align-items:center;gap:7px;padding:8px 15px;border-radius:99px;
   font-size:13px;color:var(--ink-2);border:1px solid var(--line);background:#fff;
@@ -634,13 +696,14 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   .links a{padding:7px 11px;font-size:13px;white-space:nowrap}
   .rules,.term-groups{grid-template-columns:1fr}
   .care-row{grid-template-columns:repeat(2,1fr)}
+  .saint-grid{grid-template-columns:1fr}
 }
 @media (max-width:620px){
   .nav-inner{padding:0 16px;gap:12px;height:60px}
   .brand-text{font-size:14.5px}
   .section{padding:60px 16px}
   .hero{padding:44px 16px 20px}
-  .stats{gap:22px}
+  .stats{gap:16px 22px;flex-wrap:wrap}
   .stat b{font-size:26px}
   .stat + .stat::before{left:-11px}
   .ladder{grid-template-columns:repeat(2,1fr)}
@@ -651,6 +714,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   .compare,.terms{padding:18px}
   .rule-card{padding:18px}
   .care-row{grid-template-columns:1fr}
+  .saint-card{padding:16px 16px}
+  .saint-emblem{width:38px;height:38px;font-size:17px}
+  .sm-name{flex:0 0 54px;font-size:12.5px}
   .modal{padding:0}
   .modal-card{max-height:100vh;height:100%;border-radius:0;border:0}
   .modal-body{padding:0 18px 28px}

@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>咸鱼之王 · 数据图鉴 | 梦魇水晶 · 灵珠 · 宠物</title>
 <meta name="description" content="咸鱼之王图鉴站：11 颗金色梦魇水晶属性、11 种灵珠（技能鱼珠）效果、28 只宠物立绘与技能数据。" />
+<link rel="icon" type="image/png" href="assets/icons/logo.png" />
+<link rel="apple-touch-icon" href="assets/icons/logo.png" />
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -20,14 +22,7 @@
   <div class="nav-inner">
     <a class="brand" href="#top">
       <span class="brand-mark">
-        <svg viewBox="0 0 32 32" aria-hidden="true">
-          <defs><linearGradient id="fishg" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#f3c25c"/><stop offset="1" stop-color="#b3741a"/>
-          </linearGradient></defs>
-          <path d="M20.5 9c-4.6 0-8.4 3-8.4 7s3.8 7 8.4 7c2.2 0 4.2-.7 5.7-1.9l3.3 2.4-.9-3.6c.6-1.2.9-2.5.9-3.9 0-4-3.8-7-9-7z" fill="url(#fishg)"/>
-          <circle cx="18.4" cy="14.6" r="1.25" fill="#20180a"/>
-          <path d="M8.5 12.4C6.6 11 4.6 10.6 3 11c.5 1.7 1.7 3.2 3.4 4.2-1.7 1-2.9 2.5-3.4 4.2 1.6.4 3.6 0 5.5-1.4" fill="none" stroke="url(#fishg)" stroke-width="1.6" stroke-linecap="round"/>
-        </svg>
+        <img src="assets/icons/logo.png" alt="咸鱼之王" />
       </span>
       <span class="brand-text">咸鱼之王<em>图鉴站</em></span>
     </a>
@@ -35,6 +30,7 @@
       <a href="#crystal" data-target="crystal">梦魇水晶</a>
       <a href="#bead" data-target="bead">灵珠</a>
       <a href="#pet" data-target="pet">宠物</a>
+      <a href="#saint" data-target="saint">四圣</a>
     </nav>
     <span class="nav-tag">数据源 · BWIKI</span>
   </div>
@@ -52,6 +48,7 @@
         <div class="stat"><b data-count="11">0</b><i>金色水晶</i></div>
         <div class="stat"><b data-count="11">0</b><i>灵珠技能</i></div>
         <div class="stat"><b data-count="28">0</b><i>宠物图鉴</i></div>
+        <div class="stat"><b data-count="4">0</b><i>四圣之力</i></div>
       </div>
       <div class="cta">
         <a class="btn btn-primary" href="#crystal">开始查图鉴</a>
@@ -242,7 +239,20 @@
     <div class="pet-meta reveal" id="petMeta"></div>
     <div class="grid pet-grid" id="petGrid"></div>
 
-    <p class="pet-note reveal">点击任意宠物卡片查看完整技能与逐级数值 · 等级上限为各档位参考值，最终以游戏内为准。</p>
+    <p class="pet-note reveal">点击任意宠物卡片查看完整技能与逐级数值 · 品质分 7 档，最终以游戏内为准。</p>
+  </section>
+
+  <!-- ================= 四圣 ================= -->
+  <section class="section" id="saint">
+    <div class="sec-head reveal">
+      <p class="kicker">04 · SAINT</p>
+      <h2>四圣图鉴</h2>
+      <p class="sec-desc">四圣之力分为<strong>青龙 / 白虎 / 朱雀 / 玄武</strong>四系，激活咸将的「咸圣之力」即可解锁专属皮肤。四圣统一提供<strong>攻击 · 血量 · 速度</strong>基础加成与 <strong>+8%</strong> 皮肤加成，再按咸将追加 2 条特殊词条。</p>
+    </div>
+
+    <div class="grid saint-grid reveal" id="saintGrid"></div>
+
+    <p class="compare-note">特殊词条按版本爆料整理，华佗 / 典韦 尚未公开、标为「待确认」；数值以游戏内为准。</p>
   </section>
 
 </main>
@@ -255,7 +265,7 @@
     </div>
     <div class="foot-meta">
       <span>数据更新 · 2026.10.30</span>
-      <span>水晶 11 · 灵珠 11 · 宠物 28</span>
+      <span>水晶 11 · 灵珠 11 · 宠物 28 · 四圣 4</span>
     </div>
   </div>
 </footer>
