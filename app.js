@@ -111,12 +111,7 @@ function renderCrystals(filter = 'all') {
         <div class="cc-row max"><span class="k">9 星</span><span class="v">${attrs(c.s9)}</span></div>
       </div>
       <p class="cc-note">${c.comment}</p>
-      <button class="cc-share" data-share-crystal="${c.name}" aria-label="生成分享卡片">分享卡片</button>
     </article>`).join('');
-  $$('#crystalGrid .cc-share').forEach(b => b.addEventListener('click', e => {
-    e.stopPropagation();
-    shareCrystal(b.dataset.shareCrystal);
-  }));
 }
 function attrs(arr) {
   // 合并同名属性：攻击 +4800 · +22%
@@ -317,14 +312,11 @@ function openPet(name) {
       </div>
     </div>
     <p class="mh-desc">“${p.desc}”</p>
-    <button class="share-btn" data-share-pet="${p.name}">生成分享卡片</button>
     ${skills}`;
 
   $('#modal').classList.add('is-open');
   $('#modal').setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
-  const sb = $('[data-share-pet]');
-  if (sb) sb.addEventListener('click', () => sharePet(sb.dataset.sharePet));
 }
 
 /* ---------- 通用交互 ---------- */
@@ -777,191 +769,6 @@ function initCalendar() {
   });
 }
 
-/* ============================================================
-   分享卡片
-   ============================================================ */
-let shareDataUrl = null;
-
-function roundRect(ctx, x, y, w, h, r) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.arcTo(x + w, y, x + w, y + h, r);
-  ctx.arcTo(x + w, y + h, x, y + h, r);
-  ctx.arcTo(x, y + h, x, y, r);
-  ctx.arcTo(x, y, x + w, y, r);
-  ctx.closePath();
-}
-
-function attrsPlain(arr) {
-  return arr.map(([k, v]) => `${k.replace(/%$/, '')}+${v}${k.endsWith('%') ? '%' : ''}`).join(' ');
-}
-
-function drawShare(opt) {
-  return new Promise(resolve => {
-    const W = 720, H = 980;
-    const cv = document.createElement('canvas');
-    cv.width = W; cv.height = H;
-    const ctx = cv.getContext('2d');
-
-    const paint = img => {
-      ctx.clearRect(0, 0, W, H);
-      const bg = ctx.createLinearGradient(0, 0, W, H);
-      bg.addColorStop(0, '#fdfaf1'); bg.addColorStop(1, '#edf3fd');
-      ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = opt.color; ctx.fillRect(0, 0, W, 12);
-
-      ctx.globalAlpha = .07; ctx.fillStyle = opt.color;
-      ctx.beginPath(); ctx.arc(W - 30, 80, 190, 0, Math.PI * 2); ctx.fill();
-      ctx.globalAlpha = 1;
-
-      ctx.textAlign = 'left';
-      ctx.fillStyle = '#16233c';
-      ctx.font = '700 46px "PingFang SC","Microsoft YaHei",sans-serif';
-      ctx.fillText(opt.title, 56, 104);
-      ctx.fillStyle = opt.color;
-      ctx.font = '600 22px "PingFang SC","Microsoft YaHei",sans-serif';
-      ctx.fillText(opt.subtitle, 58, 142);
-
-      if (img) {
-        const bx = 56, by = 178, bw = 300, bh = 300;
-        ctx.save();
-        roundRect(ctx, bx, by, bw, bh, 26); ctx.clip();
-        ctx.fillStyle = '#fff'; ctx.fillRect(bx, by, bw, bh);
-        const r = Math.min(bw / img.width, bh / img.height);
-        const dw = img.width * r, dh = img.height * r;
-        ctx.drawImage(img, bx + (bw - dw) / 2, by + (bh - dh) / 2, dw, dh);
-        ctx.restore();
-        roundRect(ctx, bx, by, bw, bh, 26);
-        ctx.strokeStyle = opt.color; ctx.lineWidth = 4; ctx.stroke();
-      }
-
-      let ry = 206;
-      const rows = opt.rows.slice(0, 4);
-      rows.forEach(([k, v]) => {
-        ctx.fillStyle = '#7d8ba6';
-        ctx.font = '500 18px "PingFang SC","Microsoft YaHei",sans-serif';
-        ctx.fillText(k, 392, ry);
-        ctx.fillStyle = '#16233c';
-        ctx.font = '700 24px "PingFang SC","Microsoft YaHei",sans-serif';
-        let vv = String(v);
-        if (ctx.measureText(vv).width > 264) vv = vv.slice(0, 13) + '…';
-        ctx.fillText(vv, 392, ry + 30);
-        ry += 64;
-      });
-
-      ctx.strokeStyle = 'rgba(18,38,70,.12)'; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(56, 540); ctx.lineTo(664, 540); ctx.stroke();
-
-      ctx.fillStyle = '#48597a';
-      ctx.font = '400 21px "PingFang SC","Microsoft YaHei",sans-serif';
-      const chars = [...(opt.desc || '')];
-      let line = '', yy = 580;
-      for (const ch of chars) {
-        if (ctx.measureText(line + ch).width > 600) { ctx.fillText(line, 56, yy); line = ch; yy += 34; }
-        else line += ch;
-        if (yy > 850) break;
-      }
-      if (line) ctx.fillText(line, 56, yy);
-
-      ctx.strokeStyle = 'rgba(18,38,70,.1)';
-      ctx.beginPath(); ctx.moveTo(56, 898); ctx.lineTo(664, 898); ctx.stroke();
-      ctx.fillStyle = '#a9741a';
-      ctx.font = '700 20px "PingFang SC","Microsoft YaHei",sans-serif';
-      ctx.fillText('咸鱼之王 · 图鉴站', 56, 936);
-      ctx.textAlign = 'right';
-      ctx.fillStyle = '#7d8ba6';
-      ctx.font = '400 16px "PingFang SC","Microsoft YaHei",sans-serif';
-      ctx.fillText('brightld.github.io/xyzw-guide', 664, 936);
-      ctx.textAlign = 'left';
-    };
-
-    const finish = img => {
-      paint(img);
-      let url = null;
-      try { url = cv.toDataURL('image/png'); }
-      catch (e) { paint(null); try { url = cv.toDataURL('image/png'); } catch (e2) { url = null; } }
-      resolve({ url });
-    };
-
-    if (opt.image) {
-      const im = new Image();
-      im.onload = () => finish(im);
-      im.onerror = () => finish(null);
-      im.src = opt.image;
-    } else finish(null);
-  });
-}
-
-function openShare(opt) {
-  const s = $('#share');
-  s.classList.add('is-open');
-  s.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
-  $('#sharePreview').innerHTML = '<div class="share-loading">生成中…</div>';
-  $('#shareDownload').disabled = true;
-  drawShare(opt).then(({ url }) => {
-    shareDataUrl = url;
-    if (url) {
-      $('#sharePreview').innerHTML = `<img src="${url}" alt="${opt.title} 分享卡片" />`;
-      $('#shareDownload').disabled = false;
-      $('#shareTip').textContent = '长按图片或右键也可保存';
-    } else {
-      $('#sharePreview').innerHTML = '<div class="share-fail">当前环境无法直接导出图片<br>请使用在线版或直接截图保存</div>';
-      $('#shareTip').textContent = '在线版（GitHub Pages）可直接下载';
-    }
-  });
-}
-
-function closeShare() {
-  const s = $('#share');
-  if (!s || !s.classList.contains('is-open')) return;
-  s.classList.remove('is-open');
-  s.setAttribute('aria-hidden', 'true');
-  document.body.style.overflow = '';
-}
-
-function sharePet(name) {
-  const p = PETS.find(x => x.name === name);
-  if (!p) return;
-  const q = QUALITY[p.quality] || { color: '#cfd8e3' };
-  const rows = [['图鉴加成', `${p.atlasType} +${fmt(p.atlasValue)}`]]
-    .concat(p.skills.slice(0, 3).map(k => [k.kind, k.name]));
-  openShare({
-    title: p.name,
-    subtitle: `${p.quality}色 · ${p.series}系`,
-    color: q.color,
-    image: `assets/pets/${p.name}.png`,
-    rows,
-    desc: p.desc
-  });
-}
-
-function shareCrystal(name) {
-  const c = CRYSTALS.find(x => x.name === name);
-  if (!c) return;
-  openShare({
-    title: c.name,
-    subtitle: `${c.tag} · 金色品质`,
-    color: c.c2,
-    image: 'assets/icons/梦魇晶石-金.png',
-    rows: [['0 星', attrsPlain(c.s0)], ['9 星', attrsPlain(c.s9)], ['定位', c.tag]],
-    desc: c.comment
-  });
-}
-
-function initShare() {
-  $$('[data-shclose]').forEach(el => el.addEventListener('click', closeShare));
-  const dl = $('#shareDownload');
-  if (dl) dl.addEventListener('click', () => {
-    if (!shareDataUrl) return;
-    const a = document.createElement('a');
-    a.href = shareDataUrl;
-    a.download = '咸鱼之王-图鉴.png';
-    document.body.appendChild(a); a.click(); a.remove();
-  });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeShare(); });
-}
-
 /* ---------- 启动 ---------- */
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
@@ -981,7 +788,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initOverlays();
   initCrystalFilter();
   initSearch();
-  initShare();
 
   // 深链：#pet-炎鬃狮 直接打开详情
   const hash = decodeURIComponent(location.hash || '');
