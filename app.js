@@ -612,7 +612,6 @@ const parseYMD = str => { const [y, m, d] = str.split('-').map(Number); return n
 
 /* 周期事件与 [from,to] 相交的所有区间 -> [[startDay, endDay], ...] */
 function cycleRanges(ev, from, to) {
-  if (ev.kind !== 'cycle') return [];
   const a = dayNum(parseYMD(ev.anchor));
   const c = ev.cycle, dur = ev.dur || 1;
   const k = Math.floor((from - a) / c);
@@ -624,13 +623,15 @@ function cycleRanges(ev, from, to) {
   return out;
 }
 
-/* 某天生效的事件 */
+/* 某天生效的周活动 -> [{ ev, left }]（left = 含当天在内的剩余天数） */
 function eventsOn(date) {
   const n = dayNum(date);
-  return CAL_EVENTS.filter(ev => {
-    if (ev.kind !== 'cycle') return true;
-    return cycleRanges(ev, n, n).length > 0;
+  const out = [];
+  CAL_EVENTS.forEach(ev => {
+    const r = cycleRanges(ev, n, n)[0];
+    if (r) out.push({ ev, left: r[1] - n + 1 });
   });
+  return out;
 }
 
 /* 渲染一周：日期数字行 + 跨天事件条 */
@@ -648,28 +649,34 @@ function weekHTML(wStart, y, m, todayN) {
     nums += `<button class="${cls.join(' ')}" data-date="${dt.getFullYear()}-${dt.getMonth() + 1}-${dt.getDate()}"><b>${dt.getDate()}</b></button>`;
   }
 
+  // 只画落在本月范围内的部分（上月/下月的格子留空，与游戏内日历一致）
+  const ms = dayNum(new Date(y, m, 1)), me = dayNum(new Date(y, m + 1, 0));
   const bars = [];
   CAL_EVENTS.forEach(ev => {
     cycleRanges(ev, ws, we).forEach(([st, en]) => {
-      const si = Math.max(st, ws), ei = Math.min(en, we);
-      bars.push({
-        ev,
+      const si = Math.max(st, ws, ms), ei = Math.min(en, we, me);
+      if (ei < si) return;
+      const seg = {
         left: (si - ws) / 7 * 100,
         width: (ei - si + 1) / 7 * 100,
-        cutL: st < ws,
-        cutR: en > we,
+        cutL: st < si,
+        cutR: en > ei,
         start: si,
-        days: ei - si + 1
-      });
+        days: ei - si + 1,
+        color: ev.color
+      };
+      bars.push({ ...seg, label: ev.name, task: false });
+      bars.push({ ...seg, label: ev.task, task: true });
     });
   });
-  bars.sort((a, b) => a.start - b.start || b.days - a.days);
+  bars.sort((a, b) => a.start - b.start || (a.task ? 1 : 0) - (b.task ? 1 : 0));
 
   const barsHTML = bars.map(b => {
     const cls = ['cw-bar'];
+    if (b.task) cls.push('is-task');
     if (b.cutL) cls.push('cut-l');
     if (b.cutR) cls.push('cut-r');
-    return `<div class="${cls.join(' ')}" style="margin-left:${b.left.toFixed(3)}%;width:${b.width.toFixed(3)}%;background:${b.ev.color}" title="${b.ev.name}">${b.ev.name}</div>`;
+    return `<div class="${cls.join(' ')}" style="margin-left:${b.left.toFixed(3)}%;width:${b.width.toFixed(3)}%;--c:${b.color}" title="${b.label}">${b.label}</div>`;
   }).join('');
 
   return `<div class="cal-week">
@@ -706,15 +713,16 @@ function renderCalendar() {
 }
 
 function renderCalDay(date) {
-  const n = dayNum(date);
-  const rows = eventsOn(date).map(ev => {
-    if (ev.kind === 'cycle') {
-      const r = cycleRanges(ev, n, n)[0];
-      const left = r[1] - n + 1;
-      return { ...ev, tag: left === 1 ? '今天最后一天' : `剩 ${left} 天`, urgent: left === 1 };
-    }
-    return { ...ev, tag: ev.kind === 'daily' ? '每日' : '整月' };
-  }).sort((a, b) => (a.kind === 'cycle' ? 0 : 1) - (b.kind === 'cycle' ? 0 : 1));
+  const list = eventsOn(date);
+  const rows = [];
+  list.forEach(({ ev, left }) => {
+    const tag = left === 1 ? '今天最后一天' : `剩 ${left} 天`;
+    rows.push({ name: ev.name, color: ev.color, desc: ev.desc, tag, urgent: left === 1, task: false });
+    rows.push({
+      name: ev.task, color: ev.color, task: true, urgent: left === 1, tag,
+      desc: `${ev.name}的对应达标，与周活动同期开启、同期结束。`
+    });
+  });
 
   $('#calDay').innerHTML = `
     <div class="cal-day-head">
@@ -722,30 +730,24 @@ function renderCalDay(date) {
       <span>${WD[date.getDay()]} · ${rows.length} 项进行中</span>
     </div>
     <ul class="cal-day-list">
-      ${rows.map(e => `<li><i style="background:${e.color}"></i>
+      ${rows.map(e => `<li${e.task ? ' class="is-task"' : ''}><i style="background:${e.color}"></i>
         <div><b>${e.name}</b><span>${e.desc}</span></div>
         <em${e.urgent ? ' class="is-urgent"' : ''}>${e.tag}</em></li>`).join('')}
     </ul>`;
 }
 
 function renderCalRhythm() {
-  const groups = [
-    ['周活动 · 三周轮换', CAL_EVENTS.filter(e => e.kind === 'cycle' && e.cycle === 21)],
-    ['每周固定', CAL_EVENTS.filter(e => e.kind === 'cycle' && e.cycle === 7)],
-    ['每日与整月', CAL_EVENTS.filter(e => e.kind !== 'cycle')]
-  ];
   $('#calRhythm').innerHTML = `
-    <h3 class="sub-title">周期节奏</h3>
+    <h3 class="sub-title">三周轮换 · 周活动与对应达标</h3>
     <div class="rhythm-grid">
-      ${groups.map(([lb, list]) => `
+      ${CAL_EVENTS.map(e => `
         <div class="rhythm-card">
-          <h4>${lb}</h4>
-          <ul>${list.map(e => `
-            <li><i style="background:${e.color}"></i><b>${e.name}</b><span>${e.desc}</span></li>`).join('')}
-          </ul>
+          <h4><i style="background:${e.color}"></i>${e.name}</h4>
+          <p class="rc-task">对应达标 · <b>${e.task}</b></p>
+          <p class="rc-desc">${e.desc}</p>
         </div>`).join('')}
     </div>
-    <p class="compare-note">宝箱周 / 黑市周 / 招募周为三周轮换、每周五开启；限时活动（广寒宫、后山、夺旗赛等）以游戏内公告为准。</p>`;
+    <p class="compare-note">三个周活动每 7 天轮换一次、每周五开启，各自的达标任务与周活动同期开启；具体档位与开放时间以游戏内公告为准。</p>`;
 }
 
 function initCalendar() {

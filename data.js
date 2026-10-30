@@ -2382,26 +2382,16 @@ const SAINTS = [
    具体开放时间以游戏内公告为准，此处为常规节奏参考。 */
 /* 日历事件：kind='cycle' 为周期活动（用 anchor 锚点 + cycle 周期天数 + dur 持续天数推算，可跨天画条）
    kind='daily' 为每日固定，kind='month' 为整月活动 */
+/* 日历只保留三周轮换：每个周活动各带一个对应达标，同期开启、同为 7 天
+   宝箱周 -> 白玉达标 / 黑市周 -> 金砖达标 / 招募周 -> 灵贝达标 */
 const CAL_EVENTS = [
-  // ---- 周活动 · 三周轮换，每周五开启、持续 7 天 ----
-  { id: 'chest',   name: '宝箱周',  color: '#3A6274', kind: 'cycle', anchor: '2026-10-16', cycle: 21, dur: 7,
-    desc: '宝箱达标周：开箱数量达标领奖，攒够再开更划算。' },
-  { id: 'market',  name: '黑市周',  color: '#7B2FF7', kind: 'cycle', anchor: '2026-10-23', cycle: 21, dur: 7,
-    desc: '黑市周：黑市兑换折扣与额外商品，优先补缺口资源。' },
-  { id: 'recruit', name: '招募周',  color: '#E23B3B', kind: 'cycle', anchor: '2026-10-09', cycle: 21, dur: 7,
-    desc: '招募达标周：招募次数达标领奖，别在周初就用光。' },
-  // ---- 每周固定 ----
-  { id: 'race',      name: '赛车',     color: '#E619C9', kind: 'cycle', anchor: '2026-10-10', cycle: 7, dur: 5,
-    desc: '周六开启、持续 5 天的限时赛车玩法。' },
-  { id: 'weekmatch', name: '周赛',     color: '#8B1A1A', kind: 'cycle', anchor: '2026-10-03', cycle: 7, dur: 1,
-    desc: '每周六结算的周赛，记得打满场次。' },
-  { id: 'lamp',      name: '灯神挑战', color: '#BA7517', kind: 'cycle', anchor: '2026-10-04', cycle: 7, dur: 1,
-    desc: '一周 10 次；周日先打到当周最高层再扫荡。' },
-  { id: 'club',      name: '俱乐部',   color: '#854F0B', kind: 'cycle', anchor: '2026-10-01', cycle: 7, dur: 1,
-    desc: '俱乐部捐献与活动，稳定产出资源。' },
-  // ---- 每日 / 整月 ----
-  { id: 'dream', name: '咸王梦境',   color: '#7F77DD', kind: 'daily', desc: '每日挑战，产出梦魇晶石与资源，记得打满。' },
-  { id: 'arena', name: '咸神竞技场', color: '#D4537E', kind: 'daily', desc: '每日免费挑战次数，尽量打满排名奖励。' },
-  { id: 'salt',  name: '盐场',       color: '#1D9E75', kind: 'daily', desc: '占矿与产出，按时收取避免被抢。' },
-  { id: 'bead',  name: '灵贝达标',   color: '#534AB7', kind: 'month', desc: '每月累计 200 次灵贝消耗达标，换取灵珠。' }
+  { id: 'chest',   name: '宝箱周', color: '#3A6274', task: '白玉达标',
+    anchor: '2026-10-16', cycle: 21, dur: 7,
+    desc: '宝箱达标、白玉达标、红淬达标、砸金蛋四个任务同周开启。' },
+  { id: 'market',  name: '黑市周', color: '#7B2FF7', task: '金砖达标',
+    anchor: '2026-10-23', cycle: 21, dur: 7,
+    desc: '黑市兑换与金砖达标，优先冲金砖档位换鱼竿和灵贝礼包。' },
+  { id: 'recruit', name: '招募周', color: '#E23B3B', task: '灵贝达标',
+    anchor: '2026-10-09', cycle: 21, dur: 7,
+    desc: '招募达标与灵贝达标，灵贝攒够 200 再消耗更划算。' }
 ];
