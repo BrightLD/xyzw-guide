@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>咸鱼之王 · 数据图鉴 | 梦魇水晶 · 灵珠 · 宠物</title>
-<meta name="description" content="咸鱼之王图鉴站：11 颗金色梦魇水晶属性、11 颗技能鱼珠（灵珠兑换）效果、28 只宠物立绘与技能数据。" />
+<title>咸鱼之王 · 数据图鉴 | 梦魇水晶 · 灵珠 · 宠物 · 满级玩具</title>
+<meta name="description" content="咸鱼之王图鉴站：11 颗金色梦魇水晶属性、11 颗技能鱼珠（灵珠兑换）效果、28 只宠物立绘与技能数据、9 款玩具满级技能与被动数值。" />
 <link rel="icon" type="image/png" href="assets/icons/logo.png" />
 <link rel="apple-touch-icon" href="assets/icons/logo.png" />
 <link rel="stylesheet" href="styles.css" />
@@ -30,10 +30,14 @@
       <a href="#crystal" data-target="crystal" class="is-active">梦魇水晶</a>
       <a href="#bead" data-target="bead">灵珠</a>
       <a href="#pet" data-target="pet">宠物</a>
+      <a href="#toy" data-target="toy">玩具</a>
       <a href="#saint" data-target="saint">四圣</a>
       <a href="#calendar" data-target="calendar">日历</a>
     </nav>
     <div class="nav-actions">
+      <a class="icon-btn nav-cal" href="#calendar" data-target="calendar" aria-label="活动日历" title="活动日历">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 9.5h17M8 3.2v3.4M16 3.2v3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </a>
       <button class="icon-btn" id="searchBtn" aria-label="搜索" title="搜索（Ctrl / ⌘ + K）">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16.2 16.2L20.5 20.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       </button>
@@ -52,12 +56,13 @@
   <section class="hero">
     <div class="hero-copy">
       <h1>咸鱼之王<span class="grad">数据图鉴</span></h1>
-      <p class="lede">11 颗金色梦魇水晶 · 11 颗技能鱼珠 · 28 只宠物立绘，一页看清版本答案。</p>
-      <p class="hero-meta"><span>更新于 2026-10</span><i></i><span>数据源 <b>BWIKI</b> 官方 Wiki</span></p>
+      <p class="lede">11 颗金色梦魇水晶 · 11 颗技能鱼珠 · 28 只宠物立绘 · 9 款满级玩具，一页看清版本答案。</p>
+      <p class="hero-meta"><span>更新于 2026-11</span><i></i><span>数据源 <b>BWIKI</b> 官方 Wiki</span></p>
       <div class="stats">
         <div class="stat"><b data-count="11">0</b><i>金色水晶</i></div>
         <div class="stat"><b data-count="11">0</b><i>技能鱼珠</i></div>
         <div class="stat"><b data-count="28">0</b><i>宠物图鉴</i></div>
+        <div class="stat"><b data-count="9">0</b><i>满级玩具</i></div>
         <div class="stat"><b data-count="4">0</b><i>四圣之力</i></div>
       </div>
       <div class="cta">
@@ -186,7 +191,7 @@
         <img src="assets/icons/灵珠.png" alt="灵珠" />
         <div>
           <h4>灵珠</h4>
-          <p>兑换技能鱼珠的唯一货币。主要来自月度灵贝洗练达标（200 次达标领 1 颗）、深海灯神与黑市。</p>
+          <p>兑换技能鱼珠的唯一货币。主要来自月度灵贝洗练达标（130 次达标领 1 颗）、深海灯神与黑市。</p>
         </div>
       </div>
       <div class="info-card with-icon">
@@ -199,7 +204,7 @@
       <div class="info-card">
         <span class="ic-dot gold"></span>
         <h4>灵贝洗练</h4>
-        <p>灵贝用于洗练鱼珠属性，200 次为一个月度周期，白嫖党建议攒够再洗。</p>
+        <p>灵贝用于洗练鱼珠属性，130 次为一个月度达标线，白嫖党建议攒够再洗。</p>
       </div>
     </div>
 
@@ -253,25 +258,65 @@
     <p class="pet-note reveal">点击任意宠物卡片查看完整技能与逐级数值 · 品质分 7 档，最终以游戏内为准。</p>
   </section>
 
+  <!-- ================= 玩具 ================= -->
+  <section class="section" id="toy">
+    <div class="sec-head reveal">
+      <p class="kicker">04 · TOY</p>
+      <h2>玩具图鉴</h2>
+      <p class="sec-desc">阿咸 <strong>4001 级</strong>解锁玩具，共 <strong>9 款</strong>：每款 1 个主动技能 + 4 个被动，被动分别在上阵武将总星级 <strong>80 / 100 / 110 / 130 星</strong>时解锁。本图鉴<strong>只收录满级数据</strong>，不做等级换算。</p>
+    </div>
+
+    <div class="toy-lock reveal">
+      <span class="toy-lock-dot" aria-hidden="true"></span>
+      <b>只显示满级</b>
+      <span>玩具 150 级 · 5 星 ｜ 主动技能 Lv.30 ｜ 4 个被动全部满级</span>
+    </div>
+
+    <div class="chips toy-chips reveal" id="toyChips"></div>
+    <div class="pet-meta reveal" id="toyMeta"></div>
+    <div class="grid toy-grid" id="toyGrid"></div>
+
+    <p class="pet-note reveal">点击任意玩具卡片查看满级主动效果与 4 个被动明细 · 每周有 1 次无损转换机会，换流派不用重练。</p>
+
+    <div class="rules reveal">
+      <div class="rule-card">
+        <h4>满级要多少料</h4>
+        <ul class="rule-list">
+          <li>升星消耗<b>扳手</b>：一星 1700 → 二星 5440 → 三星 13800 → 四星 36600 → 五星 116000，满级共 <b>17.35 万</b>。</li>
+          <li>被动升级消耗<b>精铁</b>：4 个被动全满合计约 <b>203 万</b>，越靠后的被动越贵。</li>
+          <li>主动技能 1–10 级每级 20 扳手、11–20 级每级 50、21–30 级每级 100。</li>
+        </ul>
+      </div>
+      <div class="rule-card">
+        <h4>该不该拉满</h4>
+        <ul class="rule-list">
+          <li><b>伤害类</b>（穿云箭 / 皮鞋手机 / 百合等）：升到 <b>121 级</b>就够，再往上只多几亿真伤，性价比极低。</li>
+          <li><b>生存与增益类</b>（大饼 / 话筒 / 花露水）：<b>务必拉满 150 级</b>，免控、格挡、减伤都是按百分比成长，越到后面越值钱。</li>
+          <li>被动先看解锁星级：星级不够，玩具等级再高也开不了被动。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
   <!-- ================= 四圣 ================= -->
   <section class="section" id="saint">
     <div class="sec-head reveal">
-      <p class="kicker">04 · SAINT</p>
+      <p class="kicker">05 · SAINT</p>
       <h2>四圣图鉴</h2>
-      <p class="sec-desc">四圣之力分为<strong>青龙 / 白虎 / 朱雀 / 玄武</strong>四系，激活咸将的「咸圣之力」即可解锁专属皮肤。四圣统一提供<strong>攻击 · 血量 · 速度</strong>基础加成与 <strong>+8%</strong> 皮肤加成，再按咸将追加 2 条特殊词条。</p>
+      <p class="sec-desc">四圣之力分为<strong>青龙 / 白虎 / 朱雀 / 玄武</strong>四系，激活咸将的「咸圣之力」即可解锁专属皮肤。四圣统一提供<strong>攻击 · 血量 · 速度</strong>基础加成与 <strong>+8%</strong> 皮肤加成，再按咸将追加 2 条特殊词条。<strong>点任一咸将</strong>可看四圣立绘大图、每阶节点与升阶红玉消耗。</p>
     </div>
 
     <div class="grid saint-grid reveal" id="saintGrid"></div>
 
-    <p class="compare-note">特殊词条按版本爆料整理，华佗 / 典韦 尚未公开、标为「待确认」；数值以游戏内为准。</p>
+    <p class="compare-note">特殊词条取自版本公开数据：白虎·华佗 2026-05-29 上线（免控 20% / 减伤 15%），玄武·典韦 2026-05-01 上线（破抵 35% / 爆伤 20%）——四圣 17 位已全部公开。升阶红玉按多篇实测汇总，0 → 50 阶共 1500 颗，数值以游戏内为准。</p>
   </section>
 
   <!-- ================= 活动日历 ================= -->
   <section class="section" id="calendar">
     <div class="sec-head reveal">
-      <p class="kicker">05 · CALENDAR</p>
+      <p class="kicker">06 · CALENDAR</p>
       <h2>活动日历</h2>
-      <p class="sec-desc"><strong>宝箱周 / 黑市周 / 招募周</strong>每 7 天轮换一次，各自的达标任务同期开启。实心条是周活动、虚线浅色条是对应达标，点击日期可查看剩余天数。</p>
+      <p class="sec-desc"><strong>宝箱周 / 黑市周 / 招募周</strong>每 7 天轮换一次，各自的达标任务同期开启；<strong>蟠桃园</strong>不参与轮换，固定在每月前 3 个周日各打一场 30 分钟的俱乐部 1v1。实心条是周活动、虚线浅色条是对应达标，点击日期可查看剩余天数。</p>
     </div>
 
     <div class="cal reveal">
@@ -293,6 +338,7 @@
 
     <div class="cal-day reveal" id="calDay"></div>
     <div class="cal-rhythm reveal" id="calRhythm"></div>
+    <div class="peach reveal" id="peachPanel"></div>
   </section>
 
   <!-- ================= 点赞 ================= -->
@@ -369,13 +415,13 @@
     <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="15.5" rx="5" ry="4.2" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="6.6" cy="9.6" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="7.6" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17.4" cy="9.6" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
     <span>宠物</span>
   </a>
+  <a href="#toy" data-target="toy">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="8.5" width="16" height="11" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8.5 8.5V6.4A2.4 2.4 0 0 1 10.9 4h2.2a2.4 2.4 0 0 1 2.4 2.4v2.1" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M9 13.4h6M9 16.2h4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <span>玩具</span>
+  </a>
   <a href="#saint" data-target="saint">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.5 5.6 6.1.6-4.6 4.1 1.3 6-5.3-3.1L6.7 19.3l1.3-6L3.4 9.2l6.1-.6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
     <span>四圣</span>
-  </a>
-  <a href="#calendar" data-target="calendar">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 9.5h17M8 3.2v3.4M16 3.2v3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-    <span>日历</span>
   </a>
 </nav>
 

@@ -10,3 +10,6 @@
 
 # Wrangler local cache
 workers/**/.wrangler/
+
+# WorkBuddy 本地工作记录
+.workbuddy/

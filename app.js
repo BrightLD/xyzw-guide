@@ -319,6 +319,126 @@ function openPet(name) {
   document.body.style.overflow = 'hidden';
 }
 
+/* ---------- 玩具图鉴（只展示满级） ---------- */
+const TOY_TYPES = {
+  '控制': '#4C7DF0',
+  '持续': '#E2673C',
+  '回复': '#2FA36B',
+  '增益': '#8B5CF6'
+};
+let activeToyType = 'all';
+
+/* 玩具面板量级：攻击统一按万、血量统一按亿，方便表格内对齐 */
+function fmtAtk(n) { return Math.round(n / 1e4) + '万'; }
+function fmtHp(n) { return (n / 1e8).toFixed(2) + '亿'; }
+
+function toyCard(t) {
+  const c = TOY_TYPES[t.type] || '#7d8ba6';
+  const extra = t.max.extra.map(([k, v]) => `<span>${k} <b>${v}</b></span>`).join('');
+  return `<article class="toy-card" data-name="${t.name}"
+      style="--t:${c};--t-soft:${hexA(c, .1)};--t-line:${hexA(c, .3)}">
+    <div class="toy-card-top">
+      <span class="toy-type">${t.type}</span>
+      <span class="toy-max">满级 150 · 5★</span>
+    </div>
+    <div class="toy-hero">
+      <div class="toy-art">
+        <img src="assets/toys/${t.name}.png" alt="咸鱼之王 玩具 ${t.name} 图标" loading="lazy" width="80" height="80" />
+      </div>
+      <div class="toy-id">
+        <h3 class="toy-name">${t.name}</h3>
+        <div class="toy-panel">
+          <div><i>攻击</i><b>${fmtAtk(t.max.atk)}</b></div>
+          <div><i>血量</i><b>${fmtHp(t.max.hp)}</b></div>
+        </div>
+      </div>
+    </div>
+    <p class="toy-quote">“${t.quote}”</p>
+    <div class="toy-extra">${extra}</div>
+    <div class="toy-active"><em>${t.active.name}</em><span>主动 Lv.30</span></div>
+  </article>`;
+}
+
+function renderToys() {
+  const chips = $('#toyChips');
+  if (!chips) return;
+  const types = ['all', ...Object.keys(TOY_TYPES)];
+  chips.innerHTML = types.map(t => {
+    const n = t === 'all' ? TOYS.length : TOYS.filter(x => x.type === t).length;
+    const c = t === 'all' ? '#7d8ba6' : TOY_TYPES[t];
+    return `<button class="pet-tab ${activeToyType === t ? 'is-active' : ''}" data-t="${t}" style="--q:${c}">
+      <span class="dot"></span>${t === 'all' ? '全部' : t + '型'}<span class="num">${n}</span></button>`;
+  }).join('');
+
+  const isAll = activeToyType === 'all';
+  const list = isAll ? TOYS : TOYS.filter(t => t.type === activeToyType);
+  $('#toyMeta').innerHTML = `
+    <span>当前类型 <b>${isAll ? '全部' : activeToyType + '型'}</b></span>
+    <span>收录 <b>${list.length} 款</b></span>
+    <span>展示口径 <b>满级</b></span>
+    <span>被动 <b>4 个 / 款</b></span>`;
+  $('#toyGrid').innerHTML = list.map(toyCard).join('');
+
+  $$('#toyChips .pet-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeToyType = btn.dataset.t;
+      renderToys();
+    });
+  });
+  $$('#toyGrid .toy-card').forEach(card => {
+    card.addEventListener('click', () => openToy(card.dataset.name));
+  });
+}
+
+/* ---------- 玩具详情弹窗 ---------- */
+function openToy(name) {
+  const t = TOYS.find(x => x.name === name);
+  if (!t) return;
+  const c = TOY_TYPES[t.type] || '#7d8ba6';
+  const rows = t.passives.map(p => `<tr>
+      <td class="tp-name">${p.name}</td>
+      <td class="tp-need">${p.need}</td>
+      <td>${fmtAtk(p.atk)}</td>
+      <td>${fmtHp(p.hp)}</td>
+      <td>${p.extra ? p.extra[0] + ' +' + p.extra[1] : '—'}</td>
+    </tr>`).join('');
+
+  $('#modalBody').innerHTML = `
+    <div class="mh">
+      <div class="toy-emblem" style="--t:${c};--t-soft:${hexA(c, .12)};--t-line:${hexA(c, .3)}">
+        <img src="assets/toys/${t.name}.png" alt="咸鱼之王 玩具 ${t.name} 图标" />
+      </div>
+      <div>
+        <h3>${t.name}</h3>
+        <div class="mh-tags">
+          <span class="badge" style="background:${c};color:#fff">${t.type}型</span>
+          <span class="badge" style="background:${hexA(c, .12)};color:${c};border:1px solid ${hexA(c, .3)}">${t.mark}</span>
+          <span class="badge t2">满级 Lv.150 · 5★</span>
+        </div>
+        <div class="mh-atlas">满级面板 攻击 <b>${fmtAtk(t.max.atk)}</b> · 血量 <b>${fmtHp(t.max.hp)}</b></div>
+      </div>
+    </div>
+    <p class="mh-desc">“${t.quote}”</p>
+    <div class="skill-block">
+      <div class="skill-head">
+        <span class="skill-kind active">主动</span>
+        <span class="skill-name">${t.active.name}</span>
+        <span class="toy-lvtag">Lv.30 满级</span>
+      </div>
+      <p class="skill-text">${t.active.text}</p>
+    </div>
+    <h4 class="toy-sub">被动加成 · 4 项全满级</h4>
+    <table class="toy-table">
+      <thead><tr><th>被动</th><th>解锁</th><th>攻击</th><th>血量</th><th>附加属性</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <p class="toy-fit"><b>怎么选</b>${t.fit}</p>`;
+
+  $('#modal').classList.add('is-open');
+  $('#modal').setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
 /* ---------- 通用交互 ---------- */
 function initBubbles() {
   const wrap = $('#bubbles');
@@ -413,12 +533,79 @@ function renderSaints() {
       </div>
       <ul class="saint-members">
         ${s.members.map(m => `
-          <li>
+          <li${m.pending ? ' class="is-pending"' : ''} data-saint="${s.key}" data-member="${m.name}" tabindex="0" role="button" aria-label="查看 ${s.key}·${m.name} 四圣详情">
+            <span class="sm-av">
+              <img src="assets/saints/${s.key}-${m.name}.png" alt="咸鱼之王 ${s.key}·${m.name} 皮肤立绘" loading="lazy" width="185" height="190" />
+            </span>
             <span class="sm-name">${m.name}</span>
             <span class="sm-tags">${m.tags.map(t => `<i class="${m.pending ? 'is-pending' : ''}">${t}</i>`).join('')}</span>
+            <span class="sm-go" aria-hidden="true">›</span>
           </li>`).join('')}
       </ul>
     </article>`).join('');
+
+  $$('#saintGrid .saint-members li').forEach(li => {
+    const go = () => openSaint(li.dataset.saint, li.dataset.member);
+    li.addEventListener('click', go);
+    li.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }
+    });
+  });
+}
+
+/* 四圣详情：大图 + 每阶节点 + 红玉消耗 */
+function openSaint(key, name) {
+  const s = SAINTS.find(x => x.key === key);
+  const m = s && s.members.find(x => x.name === name);
+  if (!s || !m) return;
+  const c = s.color;
+
+  const nodes = SAINT_TIERS.filter(t => t.unlock && t.unlock !== '—').map(t => `
+    <span class="sc-node"><b>${t.node}</b>${t.unlock}</span>`).join('');
+
+  const rows = SAINT_TIERS.map(t => `<tr>
+      <td class="st-range">${t.from}–${t.to} 阶</td>
+      <td class="st-red"><b>${t.red}</b> 颗</td>
+      <td class="st-total">${t.total} 颗</td>
+      <td class="st-tip">${t.tip}</td>
+    </tr>`).join('');
+
+  $('#modalBody').innerHTML = `
+    <div class="sc-hero" style="--sc:${c};--sc-soft:${hexA(c, .1)};--sc-line:${hexA(c, .3)}">
+      <div class="sc-art">
+        <img src="assets/saints/${s.key}-${m.name}.png" alt="咸鱼之王 ${s.key}·${m.name} 四圣皮肤立绘" width="185" height="190" />
+      </div>
+      <div class="sc-id">
+        <span class="sc-saint"><i>${s.key[0]}</i>${s.key} · ${s.en}</span>
+        <h3>${m.name}</h3>
+        <div class="mh-tags">
+          ${m.tags.map(t => `<span class="badge" style="background:${hexA(c, .12)};color:${c};border:1px solid ${hexA(c, .3)}">${t}</span>`).join('')}
+          <span class="badge t2">四圣 ${s.role}</span>
+        </div>
+        <p class="sc-line">${s.desc}</p>
+      </div>
+    </div>
+
+    <h4 class="toy-sub">阶级节点 · 升级解锁</h4>
+    <div class="sc-nodes">${nodes}</div>
+
+    <h4 class="toy-sub">升阶消耗 · 四圣红玉</h4>
+    <table class="st-table">
+      <thead><tr><th>阶级</th><th>每阶红玉</th><th>本档累计</th><th>说明</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+
+    <div class="sc-sum">
+      <div><i>满 50 阶红玉</i><b>1500 颗</b></div>
+      <div><i>同期蓝玉（期望）</i><b>约 10.3 万</b></div>
+      <div><i>每阶属性</i><b>攻/血 +0.2% · 速度 +40</b></div>
+    </div>
+
+    <p class="toy-fit"><b>怎么升</b>共鸣洗练顶到当前阶上限后，才能用红玉突破下一阶，突破同时抬高共鸣上限，属性再涨一截。红玉主要来自四圣活动掉落：白嫖全程不漏体力约 25–30 颗/月，微氪加每日礼包能多 40–50 颗。所以正常节奏是——主 C 先推 10 阶拿击杀播报，15 阶左右看手感，20 阶以后只喂一个位置。</p>`;
+
+  $('#modal').classList.add('is-open');
+  $('#modal').setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
 }
 
 /* ============================================================
@@ -447,11 +634,11 @@ function initTheme() {
 /* ============================================================
    分区视图（导航只显示对应一块）
    ============================================================ */
-const VIEW_IDS = ['crystal', 'bead', 'pet', 'saint', 'calendar'];
+const VIEW_IDS = ['crystal', 'bead', 'pet', 'toy', 'saint', 'calendar'];
 let currentView = 'crystal';
 
 function markNavActive(id) {
-  $$('.links a[data-target], #tabbar a[data-target]').forEach(l => {
+  $$('.links a[data-target], #tabbar a[data-target], .nav-cal[data-target]').forEach(l => {
     l.classList.toggle('is-active', l.dataset.target === id);
   });
 }
@@ -491,6 +678,21 @@ function applyHashView(isInit) {
   if (raw.startsWith('#pet-')) {
     setView('pet', { updateHash: false, scrollTop: !!isInit });
     openPet(raw.slice(5));
+    return;
+  }
+  if (raw.startsWith('#toy-')) {
+    setView('toy', { updateHash: false, scrollTop: !!isInit });
+    openToy(raw.slice(5));
+    return;
+  }
+  if (raw.startsWith('#saint-')) {
+    // 形如 #saint-青龙-诸葛亮
+    const rest = raw.slice(7);
+    const i = rest.indexOf('-');
+    const key = i > 0 ? rest.slice(0, i) : '';
+    const name = i > 0 ? rest.slice(i + 1) : '';
+    setView('saint', { updateHash: false, scrollTop: !!isInit });
+    if (key && name) openSaint(key, name);
     return;
   }
   const id = raw.replace(/^#/, '');
@@ -556,10 +758,27 @@ function buildSearchIndex() {
   PETS.forEach(p => push('宠物', p.name, `${p.quality}色 · ${p.series}系`,
     `${p.name} ${p.quality} ${p.series} ${p.desc} ${p.skills.map(s => s.name + ' ' + s.kind).join(' ')}`,
     () => { closeSearch(); setView('pet', { updateHash: false, scrollTop: false }); openPet(p.name); }));
+  TOYS.forEach(t => push('玩具', t.name, `${t.type}型 · ${t.mark}`,
+    `${t.name} 玩具 ${t.type} ${t.mark} ${t.active.name} ${t.active.text} ${t.fit} ${t.max.extra.map(x => x[0]).join(' ')}`,
+    () => { closeSearch(); setView('toy', { updateHash: false, scrollTop: false }); openToy(t.name); }));
   SAINTS.forEach(s => s.members.forEach(m => push('四圣', m.name, `${s.key} · ${m.tags.join(' / ')}`,
-    `${s.key} ${s.en} ${m.name} ${m.tags.join(' ')} ${s.desc}`, () => scrollToSection('saint'))));
+    `${s.key} ${s.en} ${m.name} ${m.tags.join(' ')} ${s.desc} 红玉 升阶`,
+    () => { closeSearch(); setView('saint', { updateHash: false, scrollTop: false }); openSaint(s.key, m.name); })));
   TERMS.forEach(g => g.items.forEach(([k, v]) => push('词条', k, g.title, `${k} ${v} ${g.title}`,
     () => scrollToSection('bead'))));
+  if (typeof PEACH !== 'undefined') {
+    const toPeach = () => {
+      closeSearch();
+      setView('calendar', { updateHash: false, scrollTop: false });
+      setTimeout(() => { const p = $('#peachPanel'); if (p) p.scrollIntoView({ block: 'start' }); }, 60);
+    };
+    push('日历', PEACH.name, '每月前 3 个周日 · 俱乐部 1v1',
+      `蟠桃园 天官赐福 蟠桃大会 瑶池仙踪 入梦铃 蟠桃船 军团币 曜晶徽记 白玉 彩玉 报名 20:00`, toPeach);
+    push('日历', PEACH.meet.title, '打 · 报名 8:00–18:00 · 开赛 20:00–20:30',
+      `蟠桃大会 俱乐部 1v1 拉力赛 蟠桃船 七仙女 积分 军团币 曜晶徽记 大乔 皮肤 头像框 背景墙 赐福道具`, toPeach);
+    push('日历', PEACH.pool.title, '拿 · 每月 1 日刷新任务',
+      `瑶池仙踪 俱乐部任务 个人任务 白玉 彩玉 金砖 招募令 蟠桃礼盒 复活丹 珍珠 积分档位`, toPeach);
+  }
   SEARCH_INDEX = idx;
 }
 
@@ -612,7 +831,7 @@ function renderSearch(q) {
     res.innerHTML = `<p class="sr-empty">没有找到「${q}」相关条目</p>`;
     return;
   }
-  const order = ['水晶', '灵珠', '宠物', '四圣', '词条'];
+  const order = ['水晶', '灵珠', '宠物', '玩具', '四圣', '词条', '日历'];
   const groups = {};
   hits.forEach(h => { (groups[h.it.type] = groups[h.it.type] || []).push(h.it); });
   let i = 0;
@@ -680,12 +899,32 @@ function cycleRanges(ev, from, to) {
   return out;
 }
 
+/* 「每月第 n 个周日」：枚举覆盖到的月份，取第 1/2/3 个周日 */
+function monthlySundayRanges(ev, from, to) {
+  const base = numToDate(from);
+  const out = [];
+  for (let k = -1; k <= 2; k++) {
+    const first = new Date(base.getFullYear(), base.getMonth() + k, 1);
+    const firstSun = 1 + (7 - first.getDay()) % 7;   // 1 号之后第一个周日是几号
+    (ev.nth || [1, 2, 3]).forEach(n => {
+      const num = dayNum(new Date(first.getFullYear(), first.getMonth(), firstSun + (n - 1) * 7));
+      if (num >= from && num <= to) out.push([num, num]);
+    });
+  }
+  return out.sort((a, b) => a[0] - b[0]);
+}
+
+/* 统一入口：周活动按 anchor+cycle 推算，蟠桃园按「每月第 n 个周日」推算 */
+function eventRanges(ev, from, to) {
+  return ev.kind === 'monthly-sunday' ? monthlySundayRanges(ev, from, to) : cycleRanges(ev, from, to);
+}
+
 /* 某天生效的周活动 -> [{ ev, left }]（left = 含当天在内的剩余天数） */
 function eventsOn(date) {
   const n = dayNum(date);
   const out = [];
   CAL_EVENTS.forEach(ev => {
-    const r = cycleRanges(ev, n, n)[0];
+    const r = eventRanges(ev, n, n)[0];
     if (r) out.push({ ev, left: r[1] - n + 1 });
   });
   return out;
@@ -709,8 +948,8 @@ function weekHTML(wStart, y, m, todayN) {
   // 只画落在本月范围内的部分（上月/下月的格子留空，与游戏内日历一致）
   const ms = dayNum(new Date(y, m, 1)), me = dayNum(new Date(y, m + 1, 0));
   const bars = [];
-  CAL_EVENTS.forEach(ev => {
-    cycleRanges(ev, ws, we).forEach(([st, en]) => {
+  CAL_EVENTS.forEach((ev, evIdx) => {
+    eventRanges(ev, ws, we).forEach(([st, en]) => {
       const si = Math.max(st, ws, ms), ei = Math.min(en, we, me);
       if (ei < si) return;
       const seg = {
@@ -719,14 +958,16 @@ function weekHTML(wStart, y, m, todayN) {
         cutL: st < si,
         cutR: en > ei,
         start: si,
+        evIdx,
         days: ei - si + 1,
         color: ev.color
       };
       bars.push({ ...seg, label: ev.name, task: false });
-      bars.push({ ...seg, label: ev.task, task: true });
+      if (ev.task) bars.push({ ...seg, label: ev.task, task: true });
     });
   });
-  bars.sort((a, b) => a.start - b.start || (a.task ? 1 : 0) - (b.task ? 1 : 0));
+  /* 先按起始日，再按事件顺序，最后让对应达标紧跟在自己的周活动下面 */
+  bars.sort((a, b) => a.start - b.start || a.evIdx - b.evIdx || (a.task ? 1 : 0) - (b.task ? 1 : 0));
 
   const barsHTML = bars.map(b => {
     const cls = ['cw-bar'];
@@ -773,8 +1014,9 @@ function renderCalDay(date) {
   const list = eventsOn(date);
   const rows = [];
   list.forEach(({ ev, left }) => {
-    const tag = left === 1 ? '今天最后一天' : `剩 ${left} 天`;
-    rows.push({ name: ev.name, color: ev.color, desc: ev.desc, tag, urgent: left === 1, task: false });
+    const tag = ev.tag || (left === 1 ? '今天最后一天' : `剩 ${left} 天`);
+    rows.push({ name: ev.name, color: ev.color, desc: ev.desc, tag, urgent: !ev.tag && left === 1, task: false });
+    if (!ev.task) return;
     rows.push({
       name: ev.task, color: ev.color, task: true, urgent: left === 1, tag,
       desc: `${ev.name}的对应达标，与周活动同期开启、同期结束。`
@@ -794,10 +1036,11 @@ function renderCalDay(date) {
 }
 
 function renderCalRhythm() {
+  const period = CAL_EVENTS.filter(e => e.kind !== 'monthly-sunday');
   $('#calRhythm').innerHTML = `
     <h3 class="sub-title">三周轮换 · 周活动与对应达标</h3>
     <div class="rhythm-grid">
-      ${CAL_EVENTS.map(e => `
+      ${period.map(e => `
         <div class="rhythm-card">
           <h4><i style="background:${e.color}"></i>${e.name}</h4>
           <p class="rc-task">对应达标 · <b>${e.task}</b></p>
@@ -807,11 +1050,75 @@ function renderCalRhythm() {
     <p class="compare-note">三个周活动每 7 天轮换一次、每周五开启，各自的达标任务与周活动同期开启；具体档位与开放时间以游戏内公告为准。</p>`;
 }
 
+/* ---------- 蟠桃园（天官赐福） ---------- */
+function renderPeach() {
+  const el = $('#peachPanel');
+  if (!el || typeof PEACH === 'undefined') return;
+  const p = PEACH;
+  const chips = arr => arr.map(t => `<i>${t}</i>`).join('');
+
+  el.innerHTML = `
+    <h3 class="sub-title">蟠桃园 · 每月前 3 个周日</h3>
+    <p class="peach-intro">${p.intro}</p>
+
+    <div class="peach-facts">
+      ${p.facts.map(f => `
+        <div class="pf">
+          <i>${f.k}</i><b>${f.v}</b><span>${f.n}</span>
+        </div>`).join('')}
+    </div>
+
+    <div class="peach-grid">
+      <article class="peach-card" style="--c:${p.color}">
+        <header>
+          <span class="peach-tag">${p.meet.tag}</span>
+          <h4>${p.meet.title}</h4>
+        </header>
+        <ol class="peach-flow">
+          ${p.meet.flow.map(([k, v], i) => `
+            <li><i>${i + 1}</i><div><b>${k}</b><span>${v}</span></div></li>`).join('')}
+        </ol>
+        <div class="peach-loot"><em>结算</em>${chips(p.meet.loot)}</div>
+        <p class="peach-sub">${p.meet.note}</p>
+      </article>
+
+      <article class="peach-card" style="--c:${p.color}">
+        <header>
+          <span class="peach-tag">${p.pool.tag}</span>
+          <h4>${p.pool.title}</h4>
+        </header>
+        <p class="peach-cycle">${p.pool.cycle}</p>
+        <div class="peach-tiers">
+          ${p.pool.tiers.map(([s, v]) => `<div><i>${s}</i><span>${v}</span></div>`).join('')}
+        </div>
+        <div class="peach-loot"><em>俱乐部</em>${chips(p.pool.club.loot)}</div>
+        <div class="peach-loot"><em>个人</em>${chips(p.pool.personal.loot)}</div>
+      </article>
+    </div>
+
+    <div class="peach-tasks">
+      ${[p.pool.club, p.pool.personal].map(g => `
+        <div class="pt-col">
+          <h5>${g.name}</h5>
+          <ul>${g.tasks.map(([n, d]) => `<li><b>${n}</b><span>${d}</span></li>`).join('')}</ul>
+        </div>`).join('')}
+    </div>
+
+    <div class="peach-tips">
+      <h5>怎么打</h5>
+      <ul>${p.tips.map(([k, v]) => `<li><b>${k}</b><span>${v}</span></li>`).join('')}</ul>
+    </div>
+
+    <p class="compare-note">入梦铃门槛随赛季提高，任务与奖励数值以游戏内公告为准；本页按「每月第 1–3 个周日」推算，实际开放以官方排期为准。</p>`;
+}
+
+
 function initCalendar() {
   if (!$('#calGrid')) return;
   calSel = new Date();
   renderCalendar();
   renderCalRhythm();
+  renderPeach();
 
   $('#calGrid').addEventListener('click', ev => {
     const btn = ev.target.closest('.cw-num');
@@ -959,6 +1266,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderBeads();
   renderTerms();
   renderPets();
+  renderToys();
   renderSaints();
   initCalendar();
   initBubbles();
