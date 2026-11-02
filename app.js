@@ -1142,121 +1142,6 @@ function initCalendar() {
 }
 
 
-/* ---------- 全站访问计数（Cloudflare Worker + KV） ---------- */
-// 部署 workers/visit-counter 后，把地址填到这里，例如：
-// const VISIT_API = 'https://xyzw-visit.xxx.workers.dev';
-const VISIT_API = 'https://xyzw-visit.brightld.workers.dev';
-
-async function initVisitCount() {
-  const el = document.getElementById('visitCount');
-  if (!el) return;
-  if (!VISIT_API) {
-    el.textContent = '待接入';
-    el.title = '请先部署 workers/visit-counter，并把地址填到 VISIT_API';
-    return;
-  }
-  try {
-    const res = await fetch(VISIT_API, {
-      method: 'POST',
-      mode: 'cors',
-      cache: 'no-store',
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    const n = Number(data && data.count) || 0;
-    el.textContent = n.toLocaleString('zh-CN');
-  } catch (e) {
-    el.textContent = '—';
-    el.title = '访问计数暂时不可用';
-  }
-}
-
-
-/* ---------- 点赞（全站计数） ---------- */
-const LIKE_KEY = 'xyzw-like';
-const LIKE_API = VISIT_API ? (VISIT_API.replace(/\/$/, '') + '/like') : '';
-
-function likeSparks(btn) {
-  const box = btn.querySelector('.like-spark');
-  if (!box) return;
-  box.innerHTML = '';
-  for (let i = 0; i < 8; i++) {
-    const p = document.createElement('i');
-    const a = -Math.PI / 2 + (Math.random() - 0.5) * 2.3;
-    const d = 28 + Math.random() * 24;
-    p.style.setProperty('--dx', (Math.cos(a) * d).toFixed(1) + 'px');
-    p.style.setProperty('--dy', (Math.sin(a) * d).toFixed(1) + 'px');
-    p.style.background = i % 2 ? '#e2453f' : '#f0a33c';
-    p.style.animationDelay = (i * 18) + 'ms';
-    box.appendChild(p);
-  }
-  setTimeout(() => { box.innerHTML = ''; }, 900);
-}
-
-function initLike() {
-  const btn = $('#likeBtn');
-  if (!btn) return;
-  const txt = $('#likeTxt');
-  const num = $('#likeCount');
-
-  const setCount = n => {
-    if (num) num.textContent = Number(n || 0).toLocaleString('zh-CN');
-  };
-
-  const paint = liked => {
-    btn.classList.toggle('is-liked', liked);
-    btn.setAttribute('aria-pressed', liked ? 'true' : 'false');
-    btn.setAttribute('aria-label', liked ? '已点赞，点击取消' : '点赞支持');
-    if (txt) txt.textContent = liked ? '已点赞' : '点赞';
-  };
-
-  let liked = false;
-  try { liked = localStorage.getItem(LIKE_KEY) === '1'; } catch (e) { /* 隐私模式忽略 */ }
-  paint(liked);
-
-  // 先拉全站总数
-  if (LIKE_API) {
-    fetch(LIKE_API, { method: 'GET', mode: 'cors', cache: 'no-store' })
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(d => setCount(d && d.count))
-      .catch(() => { /* 保持默认 0 */ });
-  }
-
-  let busy = false;
-  btn.addEventListener('click', async () => {
-    if (busy) return;
-    const next = !liked;
-    liked = next;
-    paint(liked);
-    try { localStorage.setItem(LIKE_KEY, liked ? '1' : '0'); } catch (e) {}
-    if (liked) likeSparks(btn);
-
-    if (!LIKE_API) return;
-    busy = true;
-    btn.disabled = true;
-    try {
-      const res = await fetch(LIKE_API, {
-        method: 'POST',
-        mode: 'cors',
-        cache: 'no-store',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: liked ? 'like' : 'unlike' }),
-      });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const data = await res.json();
-      setCount(data && data.count);
-    } catch (e) {
-      // 回滚本地状态
-      liked = !liked;
-      paint(liked);
-      try { localStorage.setItem(LIKE_KEY, liked ? '1' : '0'); } catch (err) {}
-    } finally {
-      busy = false;
-      btn.disabled = false;
-    }
-  });
-}
-
 /* ---------- 启动 ---------- */
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
@@ -1278,8 +1163,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initOverlays();
   initCrystalFilter();
   initSearch();
-  initLike();
-  initVisitCount();
 
   // 深链 / 默认分区：#pet-名称 开详情；#crystal 等切视图
   applyHashView(true);
